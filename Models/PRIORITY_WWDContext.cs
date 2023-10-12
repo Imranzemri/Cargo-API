@@ -1,0 +1,99 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace CargoApi.Models
+{
+    public partial class PRIORITY_WWDContext : DbContext
+    {
+        public PRIORITY_WWDContext()
+        {
+        }
+
+        public PRIORITY_WWDContext(DbContextOptions<PRIORITY_WWDContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Receipt> Receipts { get; set; } = null!;
+        public virtual DbSet<Shipment> Shipments { get; set; } = null!;
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=DESKTOP-N05EULC\\SQLEXPRESS;Database=PRIORITY_WWD;Trusted_Connection=True;");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Receipt>(entity =>
+            {
+                entity.ToTable("RECEIPT");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.RcptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("RCPT_NMBR");
+
+                entity.Property(e => e.ShptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("SHPT_NMBR");
+
+                entity.HasOne(d => d.ShptNmbrNavigation)
+                    .WithMany(p => p.Receipts)
+                    .HasPrincipalKey(p => p.ShptNmbr)
+                    .HasForeignKey(d => d.ShptNmbr)
+                    .HasConstraintName("FK__RECEIPT__SHPT_NM__3A81B327");
+            });
+
+            modelBuilder.Entity<Shipment>(entity =>
+            {
+                entity.ToTable("SHIPMENT");
+
+                entity.HasIndex(e => e.ShptNmbr, "UQ__SHIPMENT__5E9EFC15B8EA01E9")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.CstmRpnt).HasColumnName("CSTM_RPNT");
+
+                entity.Property(e => e.Dmnsn)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasColumnName("DMNSN");
+
+                entity.Property(e => e.Imgs).HasColumnName("IMGS");
+
+                entity.Property(e => e.Locn)
+                    .HasMaxLength(255)
+                    .HasColumnName("LOCN");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(255)
+                    .HasColumnName("NAME");
+
+                entity.Property(e => e.Note).HasColumnName("NOTE");
+
+                entity.Property(e => e.Qnty).HasColumnName("QNTY");
+
+                entity.Property(e => e.Rpnt).HasColumnName("RPNT");
+
+                entity.Property(e => e.ShptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("SHPT_NMBR");
+
+                entity.Property(e => e.Wght)
+                    .HasColumnType("decimal(10, 2)")
+                    .HasColumnName("WGHT");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
