@@ -213,7 +213,7 @@ namespace CargoApi.Controllers
                         {
                             // Commit the transaction
                             transaction.Commit();
-                            return Ok("Data saved successfully");
+                            return Ok(RcptNumbers);
                         }
                         else /*(result is StatusCodeResult)*/
                         {
