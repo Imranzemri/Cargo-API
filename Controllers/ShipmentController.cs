@@ -104,27 +104,6 @@ namespace CargoApi.Controllers
             return NoContent();
         }
 
-
-
-        // POST: api/Shipment
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<Shipment>> PostShipment(Shipment shipment)
-        //{
-        //  if (_context.Shipments == null)
-        //  {
-        //      return Problem("Entity set 'PRIORITY_WWDContext.Shipments'  is null.");
-        //  }
-        //    _context.Shipments.Add(shipment);
-        //    await _context.SaveChangesAsync();
-
-
-
-        //    return CreatedAtAction("GetShipment", new { id = shipment.Id }, shipment);
-        //}
-
-
-
         // DELETE: api/Shipment/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShipment(int id)
@@ -209,7 +188,7 @@ namespace CargoApi.Controllers
 
 
                         var result = SendEmail(shipmentData);
-                        if (result is OkResult)
+                        if (result)
                         {
                             // Commit the transaction
                             transaction.Commit();
@@ -237,10 +216,7 @@ namespace CargoApi.Controllers
             }
 
         }
-
-
-
-        public IActionResult SendEmail(Shipment shipmentData)
+        private bool SendEmail(Shipment shipmentData)
         {
             try
             {
@@ -298,19 +274,14 @@ namespace CargoApi.Controllers
 
 
 
-                return Ok();
+                return true;
             }
             catch (Exception e)
             {
-                return StatusCode(500);
+                return false;
             }
         }
-
-
-
-
-
-        public List<string> GenerateReceiptNumber(int? qnty)
+        private List<string> GenerateReceiptNumber(int? qnty)
         {
             List<string> rlist = new List<string>();
             var lastRcptNumber = _context.Receipts
