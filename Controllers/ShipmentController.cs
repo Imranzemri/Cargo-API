@@ -9,6 +9,7 @@ using CargoApi.Models;
 using System.Text.RegularExpressions;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Cors;
+using System.Net;
 
 
 
@@ -23,10 +24,14 @@ namespace CargoApi.Controllers
 
 
 
+
+
         public ShipmentController(PRIORITY_WWDContext context)
         {
             _context = context;
         }
+
+
 
 
 
@@ -43,6 +48,8 @@ namespace CargoApi.Controllers
 
 
 
+
+
         // GET: api/Shipment/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Shipment>> GetShipment(int id)
@@ -55,6 +62,8 @@ namespace CargoApi.Controllers
 
 
 
+
+
             if (shipment == null)
             {
                 return NotFound();
@@ -62,8 +71,12 @@ namespace CargoApi.Controllers
 
 
 
+
+
             return shipment;
         }
+
+
 
 
 
@@ -79,7 +92,11 @@ namespace CargoApi.Controllers
 
 
 
+
+
             _context.Entry(shipment).State = EntityState.Modified;
+
+
 
 
 
@@ -101,8 +118,12 @@ namespace CargoApi.Controllers
 
 
 
+
+
             return NoContent();
         }
+
+
 
         // DELETE: api/Shipment/5
         [HttpDelete("{id}")]
@@ -120,8 +141,12 @@ namespace CargoApi.Controllers
 
 
 
+
+
             _context.Shipments.Remove(shipment);
             await _context.SaveChangesAsync();
+
+
 
 
 
@@ -130,10 +155,14 @@ namespace CargoApi.Controllers
 
 
 
+
+
         private bool ShipmentExists(int id)
         {
             return (_context.Shipments?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+
 
 
 
@@ -167,6 +196,8 @@ namespace CargoApi.Controllers
 
 
 
+
+
                         //Generate Receipt
                         List<string> RcptNumbers = new List<string>();
                         RcptNumbers = GenerateReceiptNumber(shipmentData.Qnty);
@@ -182,12 +213,17 @@ namespace CargoApi.Controllers
 
 
 
+
+
                         // Save changes to the database
                         await _context.SaveChangesAsync();
 
 
 
-                        var result = SendEmail(shipmentData);
+
+
+                        //var result = SendEmail(shipmentData);
+                        var result = true;
                         if (result)
                         {
                             // Commit the transaction
@@ -198,8 +234,10 @@ namespace CargoApi.Controllers
                         {
                             // Rollback the transaction in case of an error
                             transaction.Rollback();
-                            return BadRequest("Failed to create the shipment and related records.");
+                            return BadRequest("Failure sending mail");
                         }
+
+
 
                     }
                     catch (Exception ex)
@@ -215,11 +253,15 @@ namespace CargoApi.Controllers
                 return BadRequest(ex.Message);
             }
 
+
+
         }
         private bool SendEmail(Shipment shipmentData)
         {
             try
             {
+
+
 
 
 
@@ -229,8 +271,13 @@ namespace CargoApi.Controllers
                 string password = "cguq uuzr ajgv nxcy"; // Your Gmail password
 
 
+
+
+
                 var fromAddress = new MailAddress("imrankhanzemri@gmail.com", "Imran Khan");
                 var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
+
+
 
 
 
@@ -247,12 +294,16 @@ namespace CargoApi.Controllers
 
 
 
+
+
                 // Create and configure the email message
                 MailMessage message = new MailMessage();
                 message.From = fromAddress;
                 message.To.Add(toAddress);
                 message.Subject = "Shipment Details";
                 message.Body = body;
+
+
 
 
 
@@ -265,12 +316,16 @@ namespace CargoApi.Controllers
 
 
 
+
+
                 // Send the email
                 SmtpClient smtp = new SmtpClient(smtpServer);
                 smtp.Port = smtpPort; // Your SMTP port number
-                smtp.Credentials = new System.Net.NetworkCredential(username,password);
+                smtp.Credentials = new System.Net.NetworkCredential(username, password);
                 smtp.EnableSsl = true; // Set to true if you are using SSL
                 smtp.Send(message);
+
+
 
 
 
@@ -295,6 +350,8 @@ namespace CargoApi.Controllers
 
 
 
+
+
                 if (prefixParts.Length > 0)
                 {
                     int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
@@ -313,6 +370,54 @@ namespace CargoApi.Controllers
                 }
             }
             return rlist;
+        }
+
+
+
+        [HttpPost]
+        [Route("uploadImage")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadImage(IFormFile thumbnail)
+        {
+            try
+            {
+                if (thumbnail != null && thumbnail.Length > 0)
+                {
+                    var fileName = Path.GetFileName(thumbnail.FileName);
+                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", uniqueFileName);
+
+
+
+                    if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                    }
+
+
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await thumbnail.CopyToAsync(stream);
+                    }
+
+
+
+
+
+
+
+                    return Ok("File uploaded successfully");
+                }
+                else
+                {
+                    return BadRequest("Invalid file");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
+            }
         }
     }
 }
