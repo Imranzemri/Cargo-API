@@ -8,6 +8,7 @@ namespace CargoApi.Models
         public Shipment()
         {
             Receipts = new HashSet<Receipt>();
+            DriverDetails = new HashSet<DriverDetail>();
         }
 
         public int Id { get; set; }
@@ -23,5 +24,6 @@ namespace CargoApi.Models
         public int? Qnty { get; set; }
 
         public virtual ICollection<Receipt> Receipts { get; set; }
+        public virtual ICollection<DriverDetail> DriverDetails { get; set; }
     }
 }

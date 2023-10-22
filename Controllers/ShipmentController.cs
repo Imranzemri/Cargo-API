@@ -37,13 +37,26 @@ namespace CargoApi.Controllers
 
         // GET: api/Shipment
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments()
+        public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments(int page, int pageSize)
         {
             if (_context.Shipments == null)
             {
                 return NotFound();
             }
-            return await _context.Shipments.ToListAsync();
+            int skip = (page - 1) * pageSize;
+             
+            var data =  _context.Shipments
+                                .Skip(skip)
+                                .Take(pageSize)
+                                .ToList();
+            int totalCount = _context
+                                    .Shipments
+                                    .Count();
+            var response = new {
+                Items = data,
+                totalCount = totalCount
+            };
+            return Ok(response);
         }
 
 
@@ -192,8 +205,15 @@ namespace CargoApi.Controllers
                         };
                         _context.Shipments.Add(shipment);
 
+                        var driver = new DriverDetail
+                        {
+                            Carir_Nme = "imran",
+                            Nme = "djd",
+                            ShptNmbr = shipmentData.ShptNmbr
 
 
+                        };
+                           _context.DriverDetails.Add(driver);
 
 
 
@@ -290,45 +310,24 @@ namespace CargoApi.Controllers
                 body += $"Note: {shipmentData.Note}\n";
                 body += $"Quantity: {shipmentData.Qnty}\n";
 
-
-
-
-
-
-
                 // Create and configure the email message
                 MailMessage message = new MailMessage();
                 message.From = fromAddress;
                 message.To.Add(toAddress);
                 message.Subject = "Shipment Details";
                 message.Body = body;
-
-
-
-
-
                 // Attach images to the email
                 //foreach (var image in shipmentData.Imgs)
                 //{
                 //    Attachment attachment = new Attachment(image);
                 //    message.Attachments.Add(attachment);
                 //}
-
-
-
-
-
                 // Send the email
                 SmtpClient smtp = new SmtpClient(smtpServer);
                 smtp.Port = smtpPort; // Your SMTP port number
                 smtp.Credentials = new System.Net.NetworkCredential(username, password);
-                smtp.EnableSsl = true; // Set to true if you are using SSL
+                smtp.EnableSsl = true; // Set to true if you are using SSL      
                 smtp.Send(message);
-
-
-
-
-
                 return true;
             }
             catch (Exception e)

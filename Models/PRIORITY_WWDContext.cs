@@ -18,6 +18,7 @@ namespace CargoApi.Models
 
         public virtual DbSet<Receipt> Receipts { get; set; } = null!;
         public virtual DbSet<Shipment> Shipments { get; set; } = null!;
+        public virtual DbSet<DriverDetail> DriverDetails { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -89,6 +90,45 @@ namespace CargoApi.Models
                 entity.Property(e => e.Wght)
                     .HasColumnType("decimal(10, 2)")
                     .HasColumnName("WGHT");
+            });
+            modelBuilder.Entity<DriverDetail>(entity =>
+            {
+                entity.ToTable("DRIVER_DETAILS");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(100)
+                    .HasColumnName("TYPE");
+
+                entity.Property(e => e.Carir_Nme)
+                    .HasMaxLength(100)
+                    .HasColumnName("CARIR_NME");
+
+                entity.Property(e => e.Nme)
+                   .HasMaxLength(70)
+                   .HasColumnName("NME");
+
+                entity.Property(e => e.Lcns_Plt_Nmbr)
+                   .HasMaxLength(255)
+                   .HasColumnName("LCNS_PLT_NMBR");
+
+                entity.Property(e => e.Id_Img)
+                   .HasMaxLength(255)
+                   .HasColumnName("ID_IMG");
+                entity.Property(e => e.Rpnt)
+   .HasMaxLength(255)
+   .HasColumnName("RPNT");
+
+                entity.Property(e => e.ShptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("SHPT_NMBR");
+
+                entity.HasOne(d => d.ShptNmbrNavigation)
+                    .WithMany(p => p.DriverDetails)
+                    .HasPrincipalKey(p => p.ShptNmbr)
+                    .HasForeignKey(d => d.ShptNmbr)
+                    .HasConstraintName("FK__RECEIPT__SHPT_NM__32453223");
             });
 
             OnModelCreatingPartial(modelBuilder);
