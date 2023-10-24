@@ -22,7 +22,7 @@ namespace CargoApi.Models
         public string? Rpnt { get; set; }
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
-
+        public string? Sts { get; set; }
         public virtual ICollection<Receipt> Receipts { get; set; }
         public virtual ICollection<DriverDetail> DriverDetails { get; set; }
     }

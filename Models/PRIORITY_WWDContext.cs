@@ -25,7 +25,7 @@ namespace CargoApi.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-N05EULC\\SQLEXPRESS;Database=PRIORITY_WWD;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=tcp:priority-wwd-server.database.windows.net,1433;Initial Catalog=PRIORITY_WWD;Persist Security Info=False;User ID=junaid;Password=Pakistan@watan19;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
 
@@ -82,6 +82,9 @@ namespace CargoApi.Models
                 entity.Property(e => e.Qnty).HasColumnName("QNTY");
 
                 entity.Property(e => e.Rpnt).HasColumnName("RPNT");
+                entity.Property(e => e.Sts)
+                   .HasMaxLength(50)
+                   .HasColumnName("STS");
 
                 entity.Property(e => e.ShptNmbr)
                     .HasMaxLength(255)

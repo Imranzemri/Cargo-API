@@ -205,19 +205,6 @@ namespace CargoApi.Controllers
                         };
                         _context.Shipments.Add(shipment);
 
-                        var driver = new DriverDetail
-                        {
-                            Carir_Nme = "imran",
-                            Nme = "djd",
-                            ShptNmbr = shipmentData.ShptNmbr
-
-
-                        };
-                           _context.DriverDetails.Add(driver);
-
-
-
-
                         //Generate Receipt
                         List<string> RcptNumbers = new List<string>();
                         RcptNumbers = GenerateReceiptNumber(shipmentData.Qnty);
