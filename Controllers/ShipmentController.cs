@@ -267,21 +267,16 @@ namespace CargoApi.Controllers
         {
             try
             {
-
-
-
-
-
-                string smtpServer = "smtp.gmail.com";
+                string smtpServer = "smtp.office365.com";
                 int smtpPort = 587;
-                string username = "imrankhanzemri@gmail.com";
-                string password = "cguq uuzr ajgv nxcy"; // Your Gmail password
+                string username = "pwswhse@priorityworldwide.com";
+                string password = "Winter2023@)@#"; 
 
 
 
 
 
-                var fromAddress = new MailAddress("imrankhanzemri@gmail.com", "Imran Khan");
+                var fromAddress = new MailAddress("pwswhse@priorityworldwide.com", "Priority WorldWide");
                 var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
 
 
