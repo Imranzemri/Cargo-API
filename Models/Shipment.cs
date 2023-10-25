@@ -14,8 +14,8 @@ namespace CargoApi.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public string ShptNmbr { get; set; } = null!;
-        public decimal? Dmnsn { get; set; }
-        public decimal? Wght { get; set; }
+        public string? Dmnsn { get; set; }
+        public string? Wght { get; set; }
         public string? Locn { get; set; }
         public string? Note { get; set; }
         public string? Imgs { get; set; }

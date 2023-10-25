@@ -64,7 +64,7 @@ namespace CargoApi.Models
                 entity.Property(e => e.CstmRpnt).HasColumnName("CSTM_RPNT");
 
                 entity.Property(e => e.Dmnsn)
-                    .HasColumnType("decimal(10, 2)")
+                    .HasMaxLength(255)
                     .HasColumnName("DMNSN");
 
                 entity.Property(e => e.Imgs).HasColumnName("IMGS");
@@ -91,7 +91,7 @@ namespace CargoApi.Models
                     .HasColumnName("SHPT_NMBR");
 
                 entity.Property(e => e.Wght)
-                    .HasColumnType("decimal(10, 2)")
+                    .HasMaxLength(255)
                     .HasColumnName("WGHT");
             });
             modelBuilder.Entity<DriverDetail>(entity =>
