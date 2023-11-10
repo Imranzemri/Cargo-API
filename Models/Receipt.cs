@@ -10,5 +10,7 @@ namespace CargoApi.Models
         public string? ShptNmbr { get; set; }
 
         public virtual Shipment? ShptNmbrNavigation { get; set; }
+        public virtual Transfer? ShptNmbrNavigationTransfer { get; set; }
+        public virtual Order? ShptNmbrNavigationOrder { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace CargoApi.Controllers
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
     [ApiController]
-    public class ShipmentController : ControllerBase
+    public class OrderController : ControllerBase
     {
         private readonly PRIORITY_WWDContext _context;
 
@@ -26,7 +26,7 @@ namespace CargoApi.Controllers
 
 
 
-        public ShipmentController(PRIORITY_WWDContext context)
+        public OrderController(PRIORITY_WWDContext context)
         {
             _context = context;
         }
@@ -180,7 +180,7 @@ namespace CargoApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateShipment([FromBody] Shipment shipmentData)
+        public async Task<IActionResult> CreateShipment([FromBody] Order shipmentData)
         {
             try
             {
@@ -190,7 +190,7 @@ namespace CargoApi.Controllers
                     try
                     {
                         // Create a new Shipment
-                        var shipment = new Shipment
+                        var shipment = new Transfer
                         {
                             Name = shipmentData.Name,
                             ShptNmbr = shipmentData.ShptNmbr,
@@ -208,7 +208,7 @@ namespace CargoApi.Controllers
                             Width =shipmentData.Width,
                             Height =shipmentData.Height
                         };
-                        _context.Shipments.Add(shipment);
+                        _context.Transfers.Add(shipment);
 
                         //Generate Receipt
                         List<string> RcptNumbers = new List<string>();

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CargoApi.Models
 {
-    public partial class Shipment
+    public partial class Transfer
     {
-        public Shipment()
+        public Transfer()
         {
             Receipts = new HashSet<Receipt>();
             DriverDetails = new HashSet<DriverDetail>();

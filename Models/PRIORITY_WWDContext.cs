@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -18,6 +19,10 @@ namespace CargoApi.Models
 
         public virtual DbSet<Receipt> Receipts { get; set; } = null!;
         public virtual DbSet<Shipment> Shipments { get; set; } = null!;
+        public virtual DbSet<Transfer> Transfers { get; set; } = null!;
+
+        public virtual DbSet<Order> Orders { get; set; } = null!;
+
         public virtual DbSet<DriverDetail> DriverDetails { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -31,6 +36,7 @@ namespace CargoApi.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //RECEIPT
             modelBuilder.Entity<Receipt>(entity =>
             {
                 entity.ToTable("RECEIPT");
@@ -50,8 +56,19 @@ namespace CargoApi.Models
                     .HasPrincipalKey(p => p.ShptNmbr)
                     .HasForeignKey(d => d.ShptNmbr)
                     .HasConstraintName("FK__RECEIPT__SHPT_NM__3A81B327");
+                entity.HasOne(d => d.ShptNmbrNavigationTransfer)
+                    .WithMany(p => p.Receipts)
+                    .HasPrincipalKey(p => p.ShptNmbr)
+                    .HasForeignKey(d => d.ShptNmbr)
+                    .HasConstraintName("FK__RECEIPT__SHPT_NM__3A8921124");
+                entity.HasOne(d => d.ShptNmbrNavigationOrder)
+                    .WithMany(p => p.Receipts)
+                    .HasPrincipalKey(p => p.ShptNmbr)
+                    .HasForeignKey(d => d.ShptNmbr)
+                    .HasConstraintName("FK__RECEIPT__SHPT_NM__3A342422");
             });
 
+            //SHIPMENT
             modelBuilder.Entity<Shipment>(entity =>
             {
                 entity.ToTable("SHIPMENT");
@@ -64,7 +81,6 @@ namespace CargoApi.Models
                 entity.Property(e => e.CstmRpnt).HasColumnName("CSTM_RPNT");
 
                 entity.Property(e => e.Dmnsn)
-                    .HasMaxLength(255)
                     .HasColumnName("DMNSN");
 
                 entity.Property(e => e.Imgs).HasColumnName("IMGS");
@@ -82,6 +98,7 @@ namespace CargoApi.Models
                 entity.Property(e => e.Qnty).HasColumnName("QNTY");
 
                 entity.Property(e => e.Rpnt).HasColumnName("RPNT");
+
                 entity.Property(e => e.Sts)
                    .HasMaxLength(50)
                    .HasColumnName("STS");
@@ -91,9 +108,126 @@ namespace CargoApi.Models
                     .HasColumnName("SHPT_NMBR");
 
                 entity.Property(e => e.Wght)
-                    .HasMaxLength(255)
                     .HasColumnName("WGHT");
+
+                entity.Property(e => e.Wght_Unit)
+                    .HasMaxLength(100)
+                    .HasColumnName("WGHT_UNIT");
+
+                entity.Property(e => e.Length).HasColumnName("LNGHT");
+
+                entity.Property(e => e.Width).HasColumnName("WDTH");
+
+                entity.Property(e => e.Height).HasColumnName("HGHT");
             });
+
+            //TRANSFER
+            modelBuilder.Entity<Transfer>(entity =>
+            {
+                entity.ToTable("TRANSFER");
+
+                entity.HasIndex(e => e.ShptNmbr, "UQ__TRANSFER__5E9EFC15B8EA01E9")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.CstmRpnt).HasColumnName("CSTM_RPNT");
+
+                entity.Property(e => e.Dmnsn)
+                    .HasColumnName("DMNSN");
+
+                entity.Property(e => e.Imgs).HasColumnName("IMGS");
+
+                entity.Property(e => e.Locn)
+                    .HasMaxLength(255)
+                    .HasColumnName("LOCN");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(255)
+                    .HasColumnName("NAME");
+
+                entity.Property(e => e.Note).HasColumnName("NOTE");
+
+                entity.Property(e => e.Qnty).HasColumnName("QNTY");
+
+                entity.Property(e => e.Rpnt).HasColumnName("RPNT");
+
+                entity.Property(e => e.Sts)
+                   .HasMaxLength(50)
+                   .HasColumnName("STS");
+
+                entity.Property(e => e.ShptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("SHPT_NMBR");
+
+                entity.Property(e => e.Wght)
+                    .HasColumnName("WGHT");
+
+                entity.Property(e => e.Wght_Unit)
+                    .HasMaxLength(100)
+                    .HasColumnName("WGHT_UNIT");
+
+                entity.Property(e => e.Length).HasColumnName("LNGHT");
+
+                entity.Property(e => e.Width).HasColumnName("WDTH");
+
+                entity.Property(e => e.Height).HasColumnName("HGHT");
+            });
+
+            //ORDERS
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.ToTable("ORDERS");
+
+                entity.HasIndex(e => e.ShptNmbr, "UQ__ORDERS__5E9EFC15B8EA01E9")
+                    .IsUnique();
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.CstmRpnt).HasColumnName("CSTM_RPNT");
+
+                entity.Property(e => e.Dmnsn)
+                    .HasColumnName("DMNSN");
+
+                entity.Property(e => e.Imgs).HasColumnName("IMGS");
+
+                entity.Property(e => e.Locn)
+                    .HasMaxLength(255)
+                    .HasColumnName("LOCN");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(255)
+                    .HasColumnName("NAME");
+
+                entity.Property(e => e.Note).HasColumnName("NOTE");
+
+                entity.Property(e => e.Qnty).HasColumnName("QNTY");
+
+                entity.Property(e => e.Rpnt).HasColumnName("RPNT");
+
+                entity.Property(e => e.Sts)
+                   .HasMaxLength(50)
+                   .HasColumnName("STS");
+
+                entity.Property(e => e.ShptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("SHPT_NMBR");
+
+                entity.Property(e => e.Wght)
+                    .HasColumnName("WGHT");
+
+                entity.Property(e => e.Wght_Unit)
+                    .HasMaxLength(100)
+                    .HasColumnName("WGHT_UNIT");
+
+                entity.Property(e => e.Length).HasColumnName("LNGHT");
+
+                entity.Property(e => e.Width).HasColumnName("WDTH");
+
+                entity.Property(e => e.Height).HasColumnName("HGHT");
+            });
+
+            //DRIVER_DETAILS
             modelBuilder.Entity<DriverDetail>(entity =>
             {
                 entity.ToTable("DRIVER_DETAILS");
