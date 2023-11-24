@@ -12,14 +12,6 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();
 
-// Set up the database context with the connection string
-var connectionString = configuration.GetConnectionString("MyDatabaseConnection");
-builder.Services.AddDbContext<PRIORITY_WWDContext>(options =>
-{
-    options.UseSqlServer(connectionString);
-});
-
-// ... Other service configurations ...
 // Add CORS configuration
 builder.Services.AddCors(options =>
 {
@@ -31,6 +23,15 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+// Set up the database context with the connection string
+var connectionString = configuration.GetConnectionString("MyDatabaseConnection");
+builder.Services.AddDbContext<PRIORITY_WWDContext>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
+
+// ... Other service configurations ...
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

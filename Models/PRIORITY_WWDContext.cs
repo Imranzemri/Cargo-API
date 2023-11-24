@@ -20,6 +20,8 @@ namespace CargoApi.Models
         public virtual DbSet<Receipt> Receipts { get; set; } = null!;
         public virtual DbSet<Shipment> Shipments { get; set; } = null!;
         public virtual DbSet<Transfer> Transfers { get; set; } = null!;
+        public virtual DbSet<Fixture> Fixtures { get; set; } = null!;
+
 
         public virtual DbSet<Order> Orders { get; set; } = null!;
 
@@ -29,8 +31,7 @@ namespace CargoApi.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=tcp:priority-wwd-server.database.windows.net,1433;Initial Catalog=PRIORITY_WWD;Persist Security Info=False;User ID=junaid;Password=Pakistan@watan19;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+                optionsBuilder.UseSqlServer("MyDatabaseConnection");
             }
         }
 
@@ -119,6 +120,51 @@ namespace CargoApi.Models
                 entity.Property(e => e.Width).HasColumnName("WDTH");
 
                 entity.Property(e => e.Height).HasColumnName("HGHT");
+                
+            });
+
+            //FIXTURE
+            modelBuilder.Entity<Fixture>(entity =>
+            {
+                entity.ToTable("FIXTURE");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.RcptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("RCPT_NMBR");
+
+                entity.Property(e => e.ShptNmbr)
+                    .HasMaxLength(255)
+                    .HasColumnName("SHPT_NMBR");
+
+                entity.Property(e => e.Wght)
+                    .HasColumnName("WGHT");
+
+                entity.Property(e => e.Length).HasColumnName("LNTH");
+
+                entity.Property(e => e.Width).HasColumnName("WDTH");
+
+                entity.Property(e => e.Height).HasColumnName("HGHT");
+                entity.Property(e => e.WUnit)
+                 .HasMaxLength(100)
+                 .HasColumnName("WGHT_UNIT");
+
+                entity.Property(e => e.DUnit)
+                 .HasMaxLength(100)
+                 .HasColumnName("LNTH_UNIT");
+
+                entity.HasOne(d => d.ShptNmbrNavigationFix)
+                   .WithMany(p => p.Fixtures)
+                   .HasPrincipalKey(p => p.ShptNmbr)
+                   .HasForeignKey(d => d.ShptNmbr)
+                   .HasConstraintName("FK__FIXTURE__SHPT_NM__3A34245698");
+
+                entity.HasOne(d => d.RcptNmbrNavigationFix)
+                   .WithMany(p => p.Fixtures)
+                   .HasPrincipalKey(p => p.RcptNmbr)
+                   .HasForeignKey(d => d.RcptNmbr)
+                   .HasConstraintName("FK__FIXTURE__RCPT_NM__3A3421411745");
             });
 
             //TRANSFER

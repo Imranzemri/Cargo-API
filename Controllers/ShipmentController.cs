@@ -64,30 +64,30 @@ namespace CargoApi.Controllers
 
 
         // GET: api/Shipment/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Shipment>> GetShipment(int id)
-        {
-            if (_context.Shipments == null)
-            {
-                return NotFound();
-            }
-            var shipment = await _context.Shipments.FindAsync(id);
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<Shipment>> GetShipment(int id)
+        //{
+        //    if (_context.Shipments == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var shipment = await _context.Shipments.FindAsync(id);
 
 
 
 
 
-            if (shipment == null)
-            {
-                return NotFound();
-            }
+        //    if (shipment == null)
+        //    {
+        //        return NotFound();
+        //    }
 
 
 
 
 
-            return shipment;
-        }
+        //    return shipment;
+        //}
 
 
 
@@ -212,20 +212,40 @@ namespace CargoApi.Controllers
 
                         //Generate Receipt
                         List<string> RcptNumbers = new List<string>();
-                        RcptNumbers = GenerateReceiptNumber(shipmentData.Qnty);
-                        foreach (var item in RcptNumbers)
+                       // RcptNumbers = GenerateReceiptNumber(shipmentData.Qnty);
+                        foreach (var item in shipmentData.RcptNmbr)
                         {
                             var receipt = new Receipt
                             {
-                                RcptNmbr = item,
+                                RcptNmbr = item.RcptNmbr,
                                 ShptNmbr = shipment.ShptNmbr,
                             };
                             _context.Receipts.Add(receipt);
+                            RcptNumbers.Add(receipt.RcptNmbr);
                         }
 
 
+                        //Adding Weight and Dimension Data
+                        for(int i=0;i<shipmentData.DimensionCollection.Count;i++)
+                        {
+                            var dim = shipmentData.DimensionCollection[i];
+                            var wght = shipmentData.WeightCollection[i];
 
+                            var fixture = new Fixture
+                            {
+                                ShptNmbr = shipmentData.ShptNmbr,
+                                RcptNmbr = dim.RcptNmbr,
+                                Length = dim.Lngth,
+                                Width = dim.Width,
+                                Height = dim.Height,
+                                DUnit=dim.DUnit,
+                                Wght=wght.Wght,
+                                WUnit=wght.WUnit
 
+                            };
+                            _context.Fixtures.Add(fixture);
+                        }
+                           
 
                         // Save changes to the database
                         await _context.SaveChangesAsync();
@@ -322,7 +342,11 @@ namespace CargoApi.Controllers
                 return false;
             }
         }
-        private List<string> GenerateReceiptNumber(int? qnty)
+
+       // [HttpGet]
+        [HttpGet("{id}")]
+        //[EnableCors("AllowAngular")]
+        public async Task<ActionResult<IEnumerable<string>>> GenerateReceiptNumber(int qnty)
         {
             List<string> rlist = new List<string>();
             var lastRcptNumber = _context.Receipts
@@ -355,7 +379,7 @@ namespace CargoApi.Controllers
                     rlist.Add($"WR1000-{i}");
                 }
             }
-            return rlist;
+            return Ok(rlist);
         }
 
 
@@ -405,5 +429,10 @@ namespace CargoApi.Controllers
                 return StatusCode(500, $"Internal server error: {ex}");
             }
         }
+
+       
     }
+   
+
+   
 }

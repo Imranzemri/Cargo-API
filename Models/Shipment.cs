@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CargoApi.Controllers;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 
 namespace CargoApi.Models
@@ -8,7 +10,10 @@ namespace CargoApi.Models
         public Shipment()
         {
             Receipts = new HashSet<Receipt>();
+            Fixtures = new HashSet<Fixture>();
             DriverDetails = new HashSet<DriverDetail>();
+            WeightCollection = new List<WeightArrayItem>();
+            DimensionCollection = new List<DimensionArrayItem>();
         }
 
         public int Id { get; set; }
@@ -28,6 +33,37 @@ namespace CargoApi.Models
         public decimal? Width { get; set; }
         public decimal? Height { get; set; }
         public virtual ICollection<Receipt> Receipts { get; set; }
+        public virtual ICollection<Fixture> Fixtures { get; set; }
         public virtual ICollection<DriverDetail> DriverDetails { get; set; }
+
+        public List<WeightArrayItem> WeightCollection { get; set; }
+        public List<DimensionArrayItem> DimensionCollection { get; set; }
+        public List<RcptNumbers> RcptNmbr { get; set; }
     }
+    [Owned]
+    public class WeightArrayItem
+    {
+        public decimal Wght { get; set; }
+        public string RcptNmbr { get; set; }
+        public string ShptNmbr { get; set; }
+        public string WUnit { get; set; }
+    }
+    [Owned]
+
+    public class DimensionArrayItem
+    {
+        public decimal Lngth { get; set; }
+        public decimal Width { get; set; }
+        public decimal Height { get; set; }
+        public string RcptNmbr { get; set; }
+        public string ShptNmbr { get; set; }
+        public string DUnit { get; set; }
+    }
+    [Owned]
+    public class RcptNumbers
+    {
+        public string RcptNmbr { get; set; }
+    }
+
+
 }
