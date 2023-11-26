@@ -173,11 +173,7 @@ namespace CargoApi.Controllers
         private bool ShipmentExists(int id)
         {
             return (_context.Shipments?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
-
-
-
-
+        }  
 
         [HttpPost]
         public async Task<IActionResult> CreateShipment([FromBody] Shipment shipmentData)
@@ -189,6 +185,11 @@ namespace CargoApi.Controllers
                 {
                     try
                     {
+                       if(_context.Shipments.Any(x => x.ShptNmbr == shipmentData.ShptNmbr))
+                        {
+                            transaction.Rollback();
+                            return BadRequest("Duplicate Shipment Number");
+                        }
                         // Create a new Shipment
                         var shipment = new Shipment
                         {
@@ -218,7 +219,7 @@ namespace CargoApi.Controllers
                             var receipt = new Receipt
                             {
                                 RcptNmbr = item.RcptNmbr,
-                                ShptNmbr = shipment.ShptNmbr,
+                                ShptNmbr = shipmentData.ShptNmbr,
                             };
                             _context.Receipts.Add(receipt);
                             RcptNumbers.Add(receipt.RcptNmbr);
@@ -343,42 +344,63 @@ namespace CargoApi.Controllers
             }
         }
 
-       // [HttpGet]
         [HttpGet("{id}")]
-        //[EnableCors("AllowAngular")]
-        public async Task<ActionResult<IEnumerable<string>>> GenerateReceiptNumber(int qnty)
+        public async Task<IActionResult> GenerateReceiptNumber(int qnty,string lastrcpNo)
         {
+          
             List<string> rlist = new List<string>();
-            var lastRcptNumber = _context.Receipts
+            if (lastrcpNo=="null")
+            {
+                lastrcpNo = _context.Receipts
                                          .OrderByDescending(x => x.RcptNmbr)
                                          .Select(x => x.RcptNmbr)
-                                         .FirstOrDefault();
-            if (lastRcptNumber != null)
-            {
-                string[] sequenceParts = lastRcptNumber.Split('-');
-                string[] prefixParts = Regex.Split(lastRcptNumber, @"(\d+)"); //wr,1000-1
-
-
-
-
-
-                if (prefixParts.Length > 0)
+                                         .FirstOrDefault().ToString();
+                if (lastrcpNo != null)
                 {
-                    int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
-                    var newPrefix = prefixParts[0] + newPrefixSeqnce;//WR1001
-                    for (int i = 1; i <= +qnty; i++)
+                    string[] sequenceParts = lastrcpNo.Split('-');
+                    string[] prefixParts = Regex.Split(lastrcpNo, @"(\d+)"); //wr,1000-1
+
+
+
+
+
+                    if (prefixParts.Length > 0)
                     {
-                        rlist.Add($"{newPrefix}-{i}");
+                        int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
+                        var newPrefix = prefixParts[0] + newPrefixSeqnce;//WR1001
+                        for (int i = 1; i <= +qnty; i++)
+                        {
+                            rlist.Add($"{newPrefix}-{i}");
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i <= qnty; i++)
+                    {
+                        rlist.Add($"WR1000-{i}");
                     }
                 }
             }
             else
             {
-                for (int i = 1; i <= qnty; i++)
+                string[] sequenceParts = lastrcpNo.Split('-');  //wr1059-2
+                //string[] prefixParts = Regex.Split(lastrcpNo, @"(\d+)"); //wr,1000-1
+                if (sequenceParts.Length > 0)
                 {
-                    rlist.Add($"WR1000-{i}");
+                    /// int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
+                    // var newPrefix = prefixParts[0] + newPrefixSeqnce;//WR1001
+                    int seq = Convert.ToInt32(sequenceParts[1]);
+                    for (int i = 1; i <= +qnty; i++)
+                    {
+                        seq = seq + 1;
+                        rlist.Add($"{sequenceParts[0]}-{seq}");
+                    }
                 }
             }
+            
+            
+            //LastrcptNo = rlist.LastOrDefault();
             return Ok(rlist);
         }
 
