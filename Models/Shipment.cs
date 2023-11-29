@@ -47,6 +47,8 @@ namespace CargoApi.Models
         public string RcptNmbr { get; set; }
         public string ShptNmbr { get; set; }
         public string WUnit { get; set; }
+        public string? Ptype { get; set; }
+        public int? Qnty { get; set; }
     }
     [Owned]
 
@@ -58,6 +60,8 @@ namespace CargoApi.Models
         public string RcptNmbr { get; set; }
         public string ShptNmbr { get; set; }
         public string DUnit { get; set; }
+        public string? Ptype { get; set; }
+        public int? Qnty { get; set; }
     }
     [Owned]
     public class RcptNumbers

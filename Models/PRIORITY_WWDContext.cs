@@ -153,6 +153,10 @@ namespace CargoApi.Models
                 entity.Property(e => e.DUnit)
                  .HasMaxLength(100)
                  .HasColumnName("LNTH_UNIT");
+                entity.Property(e => e.Ptype)
+                    .HasMaxLength(50)
+                    .HasColumnName("PRDT_TYPE");
+                entity.Property(e => e.Qnty).HasColumnName("QNTY");
 
                 entity.HasOne(d => d.ShptNmbrNavigationFix)
                    .WithMany(p => p.Fixtures)
@@ -160,11 +164,11 @@ namespace CargoApi.Models
                    .HasForeignKey(d => d.ShptNmbr)
                    .HasConstraintName("FK__FIXTURE__SHPT_NM__3A34245698");
 
-                entity.HasOne(d => d.RcptNmbrNavigationFix)
-                   .WithMany(p => p.Fixtures)
-                   .HasPrincipalKey(p => p.RcptNmbr)
-                   .HasForeignKey(d => d.RcptNmbr)
-                   .HasConstraintName("FK__FIXTURE__RCPT_NM__3A3421411745");
+                //entity.HasOne(d => d.RcptNmbrNavigationFix)
+                //   .WithMany(p => p.Fixtures)
+                //   .HasPrincipalKey(p => p.RcptNmbr)
+                //   .HasForeignKey(d => d.RcptNmbr)
+                //   .HasConstraintName("FK__FIXTURE__RCPT_NM__3A3421411745");
             });
 
             //TRANSFER
