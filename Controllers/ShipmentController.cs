@@ -21,11 +21,6 @@ namespace CargoApi.Controllers
     public class ShipmentController : ControllerBase
     {
         private readonly PRIORITY_WWDContext _context;
-
-
-
-
-
         public ShipmentController(PRIORITY_WWDContext context)
         {
             _context = context;
