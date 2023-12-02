@@ -19,8 +19,6 @@ namespace CargoApi.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? ShptNmbr { get; set; } = null!;
-        public decimal? Dmnsn { get; set; }
-        public decimal? Wght { get; set; }
         public string? Locn { get; set; }
         public string? Note { get; set; }
         public string? Imgs { get; set; }
@@ -28,14 +26,9 @@ namespace CargoApi.Models
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
-        public string? Wght_Unit { get; set; }
-        public decimal? Length { get; set; }
-        public decimal? Width { get; set; }
-        public decimal? Height { get; set; }
         public virtual ICollection<Receipt> Receipts { get; set; }
         public virtual ICollection<Fixture> Fixtures { get; set; }
         public virtual ICollection<DriverDetail> DriverDetails { get; set; }
-
         public List<WeightArrayItem> WeightCollection { get; set; }
         public List<DimensionArrayItem> DimensionCollection { get; set; }
         public List<RcptNumbers> RcptNmbr { get; set; }

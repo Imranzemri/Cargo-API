@@ -195,8 +195,6 @@ namespace CargoApi.Controllers
                         {
                             Name = shipmentData.Name,
                             ShptNmbr = shipmentData.ShptNmbr,
-                            Dmnsn = shipmentData.Dmnsn,
-                            Wght = shipmentData.Wght,
                             Locn = shipmentData.Locn,
                             Note = shipmentData.Note,
                             Imgs = shipmentData.Imgs,
@@ -204,10 +202,6 @@ namespace CargoApi.Controllers
                             CstmRpnt = shipmentData.CstmRpnt,
                             Qnty = shipmentData.Qnty,
                             Sts= shipmentData.Sts,
-                            Wght_Unit=shipmentData.Wght_Unit,
-                            Length= shipmentData.Length,
-                            Width =shipmentData.Width,
-                            Height =shipmentData.Height
                         };
                         _context.Shipments.Add(shipment);
 
@@ -285,11 +279,8 @@ namespace CargoApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
-
-
         }
-        private bool SendEmail(Shipment shipmentData)
+        private bool SendEmail(Transfer shipmentData)
         {
             try
             {
@@ -312,8 +303,8 @@ namespace CargoApi.Controllers
                 // Customize the email body based on your requirements
                 var body = $"Here are the shipment details for {shipmentData.Name}:\n";
                 body += $"Shipment Number: {shipmentData.ShptNmbr}\n";
-                body += $"Dimension: {shipmentData.Dmnsn}\n";
-                body += $"Weight: {shipmentData.Wght}\n";
+               // body += $"Dimension: {shipmentData.Dmnsn}\n";
+               // body += $"Weight: {shipmentData.Wght}\n";
                 body += $"Location: {shipmentData.Locn}\n";
                 body += $"Note: {shipmentData.Note}\n";
                 body += $"Quantity: {shipmentData.Qnty}\n";
@@ -354,7 +345,7 @@ namespace CargoApi.Controllers
                 lastrcpNo = _context.Receipts
                                          .OrderByDescending(x => x.RcptNmbr)
                                          .Select(x => x.RcptNmbr)
-                                         .FirstOrDefault().ToString();
+                                         .FirstOrDefault() ?? null;
                 if (lastrcpNo != null)
                 {
                     string[] sequenceParts = lastrcpNo.Split('-');

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CargoApi.Models
 {
-    public partial class Receipt
+    public partial class Transfer_Receipt
     {
-        public Receipt() 
+        public Transfer_Receipt() 
         {
            // Fixtures = new HashSet<Fixture>();
 
@@ -14,6 +14,6 @@ namespace CargoApi.Models
         public string RcptNmbr { get; set; } = null!;
         public string? ShptNmbr { get; set; }
        // public virtual ICollection<Fixture> Fixtures { get; set; }
-        public virtual Shipment? ShptNmbrNavigation { get; set; }
+        public virtual Transfer? ShptNmbrNavigationTransfer { get; set; }
     }
 }

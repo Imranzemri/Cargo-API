@@ -34,7 +34,6 @@ namespace CargoApi.Controllers
 
 
 
-
         // GET: api/Shipment
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments(int page, int pageSize)
@@ -44,50 +43,46 @@ namespace CargoApi.Controllers
                 return NotFound();
             }
             int skip = (page - 1) * pageSize;
-             
-            var data =  _context.Shipments
+
+            var data = _context.Shipments
                                 .Skip(skip)
                                 .Take(pageSize)
                                 .ToList();
             int totalCount = _context
                                     .Shipments
                                     .Count();
-            var response = new {
+            var response = new
+            {
                 Items = data,
                 totalCount = totalCount
             };
             return Ok(response);
         }
-
-
-
-
-
         // GET: api/Shipment/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Shipment>> GetShipment(int id)
-        {
-            if (_context.Shipments == null)
-            {
-                return NotFound();
-            }
-            var shipment = await _context.Shipments.FindAsync(id);
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<Shipment>> GetShipment(int id)
+        //{
+        //    if (_context.Shipments == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var shipment = await _context.Shipments.FindAsync(id);
 
 
 
 
 
-            if (shipment == null)
-            {
-                return NotFound();
-            }
+        //    if (shipment == null)
+        //    {
+        //        return NotFound();
+        //    }
 
 
 
 
 
-            return shipment;
-        }
+        //    return shipment;
+        //}
 
 
 
@@ -180,7 +175,7 @@ namespace CargoApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateShipment([FromBody] Order shipmentData)
+        public async Task<IActionResult> CreateShipment([FromBody] Transfer shipmentData)
         {
             try
             {
@@ -189,42 +184,63 @@ namespace CargoApi.Controllers
                 {
                     try
                     {
+                        if (_context.Orders.Any(x => x.ShptNmbr == shipmentData.ShptNmbr))
+                        {
+                            transaction.Rollback();
+                            return BadRequest("Duplicate Shipment Number");
+                        }
                         // Create a new Shipment
-                        var shipment = new Transfer
+                        var shipment = new Order
                         {
                             Name = shipmentData.Name,
                             ShptNmbr = shipmentData.ShptNmbr,
-                            Dmnsn = shipmentData.Dmnsn,
-                            Wght = shipmentData.Wght,
                             Locn = shipmentData.Locn,
                             Note = shipmentData.Note,
                             Imgs = shipmentData.Imgs,
                             Rpnt = shipmentData.Rpnt,
                             CstmRpnt = shipmentData.CstmRpnt,
                             Qnty = shipmentData.Qnty,
-                            Sts= shipmentData.Sts,
-                            Wght_Unit=shipmentData.Wght_Unit,
-                            Length= shipmentData.Length,
-                            Width =shipmentData.Width,
-                            Height =shipmentData.Height
+                            Sts = shipmentData.Sts,
                         };
-                        _context.Transfers.Add(shipment);
+                        _context.Orders.Add(shipment);
 
                         //Generate Receipt
                         List<string> RcptNumbers = new List<string>();
-                        RcptNumbers = GenerateReceiptNumber(shipmentData.Qnty);
-                        foreach (var item in RcptNumbers)
+                        // RcptNumbers = GenerateReceiptNumber(shipmentData.Qnty);
+                        foreach (var item in shipmentData.RcptNmbr)
                         {
-                            var receipt = new Receipt
+                            var receipt = new Order_Receipt
                             {
-                                RcptNmbr = item,
-                                ShptNmbr = shipment.ShptNmbr,
+                                RcptNmbr = item.RcptNmbr,
+                                ShptNmbr = shipmentData.ShptNmbr,
                             };
-                            _context.Receipts.Add(receipt);
+                            _context.Order_Receipts.Add(receipt);
+                            RcptNumbers.Add(receipt.RcptNmbr);
                         }
 
 
+                        //Adding Weight and Dimension Data
+                        for (int i = 0; i < shipmentData.DimensionCollection.Count; i++)
+                        {
+                            var dim = shipmentData.DimensionCollection[i];
+                            var wght = shipmentData.WeightCollection[i];
 
+                            var fixture = new Order_Fixture
+                            {
+                                ShptNmbr = shipmentData.ShptNmbr,
+                                RcptNmbr = dim.RcptNmbr,
+                                Length = dim.Lngth,
+                                Width = dim.Width,
+                                Height = dim.Height,
+                                DUnit = dim.DUnit,
+                                Wght = wght.Wght,
+                                WUnit = wght.WUnit,
+                                Ptype = wght.Ptype,
+                                Qnty = wght.Qnty
+
+                            };
+                            _context.Order_Fixtures.Add(fixture);
+                        }
 
 
                         // Save changes to the database
@@ -248,9 +264,6 @@ namespace CargoApi.Controllers
                             transaction.Rollback();
                             return BadRequest("Failure sending mail");
                         }
-
-
-
                     }
                     catch (Exception ex)
                     {
@@ -264,18 +277,15 @@ namespace CargoApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
-
-
         }
-        private bool SendEmail(Shipment shipmentData)
+        private bool SendEmail(Order shipmentData)
         {
             try
             {
                 string smtpServer = "smtp.office365.com";
                 int smtpPort = 587;
                 string username = "pwswhse@priorityworldwide.com";
-                string password = "Winter2023@)@#"; 
+                string password = "Winter2023@)@#";
 
 
 
@@ -291,8 +301,8 @@ namespace CargoApi.Controllers
                 // Customize the email body based on your requirements
                 var body = $"Here are the shipment details for {shipmentData.Name}:\n";
                 body += $"Shipment Number: {shipmentData.ShptNmbr}\n";
-                body += $"Dimension: {shipmentData.Dmnsn}\n";
-                body += $"Weight: {shipmentData.Wght}\n";
+                //body += $"Dimension: {shipmentData.Dmnsn}\n";
+                // body += $"Weight: {shipmentData.Wght}\n";
                 body += $"Location: {shipmentData.Locn}\n";
                 body += $"Note: {shipmentData.Note}\n";
                 body += $"Quantity: {shipmentData.Qnty}\n";
@@ -322,40 +332,65 @@ namespace CargoApi.Controllers
                 return false;
             }
         }
-        private List<string> GenerateReceiptNumber(int? qnty)
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GenerateReceiptNumber(int qnty, string lastrcpNo)
         {
+
             List<string> rlist = new List<string>();
-            var lastRcptNumber = _context.Receipts
+            if (lastrcpNo == "null")
+            {
+                lastrcpNo = _context.Order_Receipts
                                          .OrderByDescending(x => x.RcptNmbr)
                                          .Select(x => x.RcptNmbr)
-                                         .FirstOrDefault();
-            if (lastRcptNumber != null)
-            {
-                string[] sequenceParts = lastRcptNumber.Split('-');
-                string[] prefixParts = Regex.Split(lastRcptNumber, @"(\d+)"); //wr,1000-1
-
-
-
-
-
-                if (prefixParts.Length > 0)
+                                         .FirstOrDefault() ?? null;
+                if (lastrcpNo != null)
                 {
-                    int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
-                    var newPrefix = prefixParts[0] + newPrefixSeqnce;//WR1001
-                    for (int i = 1; i <= +qnty; i++)
+                    string[] sequenceParts = lastrcpNo.Split('-');
+                    string[] prefixParts = Regex.Split(lastrcpNo, @"(\d+)"); //wr,1000-1
+
+
+
+
+
+                    if (prefixParts.Length > 0)
                     {
-                        rlist.Add($"{newPrefix}-{i}");
+                        int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
+                        var newPrefix = prefixParts[0] + newPrefixSeqnce;//WR1001
+                        for (int i = 1; i <= +qnty; i++)
+                        {
+                            rlist.Add($"{newPrefix}-{i}");
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i <= qnty; i++)
+                    {
+                        rlist.Add($"WR1000-{i}");
                     }
                 }
             }
             else
             {
-                for (int i = 1; i <= qnty; i++)
+                string[] sequenceParts = lastrcpNo.Split('-');  //wr1059-2
+                //string[] prefixParts = Regex.Split(lastrcpNo, @"(\d+)"); //wr,1000-1
+                if (sequenceParts.Length > 0)
                 {
-                    rlist.Add($"WR1000-{i}");
+                    /// int newPrefixSeqnce = Convert.ToInt32(prefixParts[1]) + 1;
+                    // var newPrefix = prefixParts[0] + newPrefixSeqnce;//WR1001
+                    int seq = Convert.ToInt32(sequenceParts[1]);
+                    for (int i = 1; i <= +qnty; i++)
+                    {
+                        seq = seq + 1;
+                        rlist.Add($"{sequenceParts[0]}-{seq}");
+                    }
                 }
             }
-            return rlist;
+
+
+            //LastrcptNo = rlist.LastOrDefault();
+            return Ok(rlist);
         }
 
 
