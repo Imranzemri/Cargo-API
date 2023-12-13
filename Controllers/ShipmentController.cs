@@ -25,11 +25,6 @@ namespace CargoApi.Controllers
         {
             _context = context;
         }
-
-
-
-
-
         // GET: api/Shipment
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments(int page, int pageSize)
@@ -43,6 +38,7 @@ namespace CargoApi.Controllers
             var data =  _context.Shipments
                                 .Skip(skip)
                                 .Take(pageSize)
+                                .Select(x=>new Shipment { ShptNmbr=x.ShptNmbr,Name=x.Name,Locn=x.Locn,Qnty=x.Qnty})
                                 .ToList();
             int totalCount = _context
                                     .Shipments

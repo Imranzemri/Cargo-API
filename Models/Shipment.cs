@@ -12,8 +12,8 @@ namespace CargoApi.Models
             Receipts = new HashSet<Receipt>();
             Fixtures = new HashSet<Fixture>();
             DriverDetails = new HashSet<DriverDetail>();
-            WeightCollection = new List<WeightArrayItem>();
-            DimensionCollection = new List<DimensionArrayItem>();
+            //WeightCollection = new List<WeightArrayItem>();
+            //DimensionCollection = new List<DimensionArrayItem>();
         }
 
         public int Id { get; set; }
