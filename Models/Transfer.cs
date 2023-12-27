@@ -9,7 +9,7 @@ namespace CargoApi.Models
         public Transfer()
         {
             Transfer_Receipts = new HashSet<Transfer_Receipt>();
-            DriverDetails = new HashSet<DriverDetail>();
+           // DriverDetails = new HashSet<Driver>();
             Transfer_Fixtures=new HashSet<Transfer_Fixture>();
             WeightCollection = new List<WeightArrayItem_Transfer>();
             DimensionCollection = new List<DimensionArrayItem_Transfer>();
@@ -28,7 +28,6 @@ namespace CargoApi.Models
         public string? Sts { get; set; }
         public virtual ICollection<Transfer_Receipt> Transfer_Receipts { get; set; }
         public virtual ICollection<Transfer_Fixture> Transfer_Fixtures { get; set; }
-        public virtual ICollection<DriverDetail> DriverDetails { get; set; }
         public List<WeightArrayItem_Transfer> WeightCollection { get; set; }
         public List<DimensionArrayItem_Transfer> DimensionCollection { get; set; }
         public List<RcptNumbers_Transfer> RcptNmbr { get; set; }

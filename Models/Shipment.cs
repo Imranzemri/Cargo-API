@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CargoApi.Models
 {
@@ -11,7 +12,7 @@ namespace CargoApi.Models
         {
             Receipts = new HashSet<Receipt>();
             Fixtures = new HashSet<Fixture>();
-            DriverDetails = new HashSet<DriverDetail>();
+            Drivers = new HashSet<Driver>();
             //WeightCollection = new List<WeightArrayItem>();
             //DimensionCollection = new List<DimensionArrayItem>();
         }
@@ -26,12 +27,15 @@ namespace CargoApi.Models
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
-        public virtual ICollection<Receipt> Receipts { get; set; }
-        public virtual ICollection<Fixture> Fixtures { get; set; }
-        public virtual ICollection<DriverDetail> DriverDetails { get; set; }
-        public List<WeightArrayItem> WeightCollection { get; set; }
-        public List<DimensionArrayItem> DimensionCollection { get; set; }
-        public List<RcptNumbers> RcptNmbr { get; set; }
+        public virtual ICollection<Receipt>? Receipts { get; set; }
+        public virtual ICollection<Fixture>? Fixtures { get; set; }
+        public virtual ICollection<Driver>? Drivers { get; set; }
+        [NotMapped]
+        public List<WeightArrayItem>? WeightCollection { get; set; }
+        [NotMapped]
+        public List<DimensionArrayItem>? DimensionCollection { get; set; }
+        [NotMapped]
+        public List<RcptNumbers>? RcptNmbr { get; set; }
     }
     [Owned]
     public class WeightArrayItem

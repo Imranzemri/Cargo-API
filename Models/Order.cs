@@ -9,7 +9,7 @@ namespace CargoApi.Models
         public Order()
         {
             Order_Receipts = new HashSet<Order_Receipt>();
-            DriverDetails = new HashSet<DriverDetail>();
+           // DriverDetails = new HashSet<Driver>();
         }
 
         public int Id { get; set; }
@@ -24,7 +24,6 @@ namespace CargoApi.Models
         public string? Sts { get; set; }
         public virtual ICollection<Order_Receipt> Order_Receipts { get; set; }
         public virtual ICollection<Order_Fixture> Order_Fixtures { get; set; }
-        public virtual ICollection<DriverDetail> DriverDetails { get; set; }
         public List<WeightArrayItem_Order> WeightCollection { get; set; }
         public List<DimensionArrayItem_Order> DimensionCollection { get; set; }
         public List<RcptNumbers_Order> RcptNmbr { get; set; }

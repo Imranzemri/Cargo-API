@@ -10,8 +10,7 @@ using System.Text.RegularExpressions;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Cors;
 using System.Net;
-
-
+using CargoApi.Custom_Models;
 
 namespace CargoApi.Controllers
 {
@@ -27,7 +26,7 @@ namespace CargoApi.Controllers
         }
         // GET: api/Shipment
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments(int page, int pageSize)
+        public async Task<ActionResult<IEnumerable<ShipmentHelper>>> GetShipments(int page, int pageSize)
         {
             if (_context.Shipments == null)
             {
@@ -36,6 +35,7 @@ namespace CargoApi.Controllers
             int skip = (page - 1) * pageSize;
              
             var data =  _context.Shipments
+                                .Where(x => x.Sts == "Draft")
                                 .Skip(skip)
                                 .Take(pageSize)
                                 .Select(x=>new Shipment { ShptNmbr=x.ShptNmbr,Name=x.Name,Locn=x.Locn,Qnty=x.Qnty})
@@ -43,8 +43,70 @@ namespace CargoApi.Controllers
             int totalCount = _context
                                     .Shipments
                                     .Count();
+            List<ShipmentHelper> listshipmentHelper = new List<ShipmentHelper>();
+  
+            foreach (var item in data)
+            {
+              var res =  _context.Fixtures
+                                 .Where(x => x.ShptNmbr==item.ShptNmbr)
+                                 .ToList();
+                #region Calculate Total Weight
+                decimal? totalkgs = 0;
+                decimal? totallbs = 0;
+                foreach (var f in res)
+                {
+                    if(f.Ptype == "Distinct")
+                    {
+                        if(f.WUnit == "kg")
+                        {
+                            totalkgs += f.Wght;
+                            totallbs += f.Wght * Convert.ToDecimal(2.20462);
+                        }
+                        if(f.WUnit == "lb")
+                        {
+                            totallbs+= f.Wght;
+                            var wghtinkg = f.Wght / Convert.ToDecimal(2.20462);
+                            totalkgs += wghtinkg;
+                        }
+                    }
+                    if(f.Ptype == "Identical")
+                    {
+                        if(f.WUnit == "kg")
+                        {
+                            totalkgs += f.Wght * f.Qnty;
+                            var kgs = f.Wght * f.Qnty;
+                            totallbs += kgs * Convert.ToDecimal(2.20462);
+                        }
+                        if (f.WUnit == "lb")
+                        {
+                            totallbs += f.Wght * f.Qnty;
+                            var lbs = f.Wght * f.Qnty;
+                            totalkgs += lbs / Convert.ToDecimal(2.20462);
+                        }
+                    }
+                }
+                #endregion
+                #region Get Receipt Number
+
+                var rcptNmbr= _context.Receipts
+                                      .Where(x=>x.ShptNmbr==item.ShptNmbr)
+                                      .FirstOrDefault()?.RcptNmbr;
+               var mainRcpNo= rcptNmbr.Split('-');
+
+                #endregion
+                var shpmntHelper = new ShipmentHelper
+                {
+                    Name = item.Name,
+                    ShpNmbr = item.ShptNmbr,
+                    Qnty = item.Qnty,
+                    TotalKg = totalkgs,
+                    TotalLb=totallbs,
+                    RcptNmr = mainRcpNo[0]
+                };
+                listshipmentHelper.Add(shpmntHelper);
+            }
             var response = new {
-                Items = data,
+                Items = listshipmentHelper,
                 totalCount = totalCount
             };
             return Ok(response);
@@ -226,7 +288,9 @@ namespace CargoApi.Controllers
                                 Height = dim.Height,
                                 DUnit=dim.DUnit,
                                 Wght=wght.Wght,
-                                WUnit=wght.WUnit
+                                WUnit=wght.WUnit,
+                                Ptype=wght.Ptype,
+                                Qnty=wght.Qnty,
 
                             };
                             _context.Fixtures.Add(fixture);
