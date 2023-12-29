@@ -28,6 +28,10 @@ namespace CargoApi.Models
         public virtual DbSet<Order_Fixture> Order_Fixtures { get; set; } = null!;
         public virtual DbSet<Order> Orders { get; set; } = null!;
         public virtual DbSet<Driver> Drivers { get; set; } = null!;
+        public virtual DbSet<Order_Driver> Order_Drivers { get; set; } = null!;
+
+        public virtual DbSet<Transfer_Driver> Transfer_Drivers { get; set; } = null!;
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -394,6 +398,78 @@ namespace CargoApi.Models
                     .HasPrincipalKey(p => p.ShptNmbr)
                     .HasForeignKey(d => d.ShptNmbr)
                     .HasConstraintName("FK__Driver__SHPT_NMB__0D7A0286");
+            });
+
+            //Order Driver
+            modelBuilder.Entity<Order_Driver>(entity =>
+            {
+                entity.ToTable("ORDER_DRIVER");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(255)
+                    .HasColumnName("D_TYPE");
+
+                entity.Property(e => e.Nme)
+                    .HasMaxLength(255)
+                    .HasColumnName("NME");
+                entity.Property(e => e.Carir_Nme)
+                   .HasMaxLength(255)
+                   .HasColumnName("CRIR_NME");
+                entity.Property(e => e.Lcns_Plt_Nmbr)
+                   .HasMaxLength(255)
+                   .HasColumnName("LCNS_PLT_NMBR");
+                entity.Property(e => e.Id_Img)
+                   .HasMaxLength(255)
+                   .HasColumnName("ID_IMG");
+                entity.Property(e => e.Rpnt)
+                   .HasMaxLength(255)
+                   .HasColumnName("RPNT");
+                entity.Property(e => e.ShptNmbr)
+                   .HasMaxLength(255)
+                   .HasColumnName("SHPT_NMBR");
+                entity.HasOne(d => d.ShptNmbrNavigationOrderDriver)
+                    .WithMany(p => p.Order_Drivers)
+                    .HasPrincipalKey(p => p.ShptNmbr)
+                    .HasForeignKey(d => d.ShptNmbr)
+                    .HasConstraintName("FK__ORDER_DRI__SHPT___10566F31");
+            });
+
+            //Transfer Driver
+            modelBuilder.Entity<Transfer_Driver>(entity =>
+            {
+                entity.ToTable("TRANSFER_DRIVER");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(255)
+                    .HasColumnName("D_TYPE");
+
+                entity.Property(e => e.Nme)
+                    .HasMaxLength(255)
+                    .HasColumnName("NME");
+                entity.Property(e => e.Carir_Nme)
+                   .HasMaxLength(255)
+                   .HasColumnName("CRIR_NME");
+                entity.Property(e => e.Lcns_Plt_Nmbr)
+                   .HasMaxLength(255)
+                   .HasColumnName("LCNS_PLT_NMBR");
+                entity.Property(e => e.Id_Img)
+                   .HasMaxLength(255)
+                   .HasColumnName("ID_IMG");
+                entity.Property(e => e.Rpnt)
+                   .HasMaxLength(255)
+                   .HasColumnName("RPNT");
+                entity.Property(e => e.ShptNmbr)
+                   .HasMaxLength(255)
+                   .HasColumnName("SHPT_NMBR");
+                entity.HasOne(d => d.ShptNmbrNavigationTransferDriver)
+                    .WithMany(p => p.Transfer_Drivers)
+                    .HasPrincipalKey(p => p.ShptNmbr)
+                    .HasForeignKey(d => d.ShptNmbr)
+                    .HasConstraintName("FK__TRANSFER___SHPT___1332DBDC");
             });
 
             OnModelCreatingPartial(modelBuilder);

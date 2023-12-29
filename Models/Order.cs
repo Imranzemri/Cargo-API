@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CargoApi.Models
 {
@@ -8,8 +9,9 @@ namespace CargoApi.Models
     {
         public Order()
         {
+            Order_Fixtures=new HashSet<Order_Fixture>();
             Order_Receipts = new HashSet<Order_Receipt>();
-           // DriverDetails = new HashSet<Driver>();
+            Order_Drivers = new HashSet<Order_Driver>();
         }
 
         public int Id { get; set; }
@@ -22,11 +24,15 @@ namespace CargoApi.Models
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
-        public virtual ICollection<Order_Receipt> Order_Receipts { get; set; }
-        public virtual ICollection<Order_Fixture> Order_Fixtures { get; set; }
-        public List<WeightArrayItem_Order> WeightCollection { get; set; }
-        public List<DimensionArrayItem_Order> DimensionCollection { get; set; }
-        public List<RcptNumbers_Order> RcptNmbr { get; set; }
+        public virtual ICollection<Order_Receipt>? Order_Receipts { get; set; }
+        public virtual ICollection<Order_Fixture>? Order_Fixtures { get; set; }
+        public virtual ICollection<Order_Driver>? Order_Drivers { get; set; }
+        [NotMapped]
+        public List<WeightArrayItem_Order>? WeightCollection { get; set; }
+        [NotMapped]
+        public List<DimensionArrayItem_Order>? DimensionCollection { get; set; }
+        [NotMapped]
+        public List<RcptNumbers_Order>? RcptNmbr { get; set; }
     }
 
     [Owned]

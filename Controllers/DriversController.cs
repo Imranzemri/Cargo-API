@@ -22,7 +22,7 @@ namespace CargoApi.Controllers
             _context = context;
         }
 
-        // GET: api/Drivers
+     
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Driver>>> GetDrivers()
         {
@@ -33,7 +33,6 @@ namespace CargoApi.Controllers
             return await _context.Drivers.ToListAsync();
         }
 
-        // GET: api/Drivers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Driver>> GetDriver(int id)
         {
@@ -51,8 +50,7 @@ namespace CargoApi.Controllers
             return driver;
         }
 
-        // PUT: api/Drivers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDriver(int id, Driver driver)
         {
@@ -126,7 +124,6 @@ namespace CargoApi.Controllers
             }
         }
 
-        // DELETE: api/Drivers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDriver(int id)
         {

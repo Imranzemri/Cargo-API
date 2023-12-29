@@ -24,7 +24,8 @@ namespace CargoApi.Controllers
         {
             _context = context;
         }
-        // GET: api/Shipment
+  
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ShipmentHelper>>> GetShipments(int page, int pageSize)
         {
@@ -38,7 +39,7 @@ namespace CargoApi.Controllers
                                 .Where(x => x.Sts == "Draft")
                                 .Skip(skip)
                                 .Take(pageSize)
-                                .Select(x=>new Shipment { ShptNmbr=x.ShptNmbr,Name=x.Name,Locn=x.Locn,Qnty=x.Qnty})
+                                //.Select(x=>new Shipment { ShptNmbr=x.ShptNmbr,Name=x.Name,Locn=x.Locn,Qnty=x.Qnty})
                                 .ToList();
             int totalCount = _context
                                     .Shipments
@@ -113,85 +114,6 @@ namespace CargoApi.Controllers
         }
 
 
-
-
-
-        // GET: api/Shipment/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Shipment>> GetShipment(int id)
-        //{
-        //    if (_context.Shipments == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var shipment = await _context.Shipments.FindAsync(id);
-
-
-
-
-
-        //    if (shipment == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-
-
-
-
-        //    return shipment;
-        //}
-
-
-
-
-
-        // PUT: api/Shipment/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutShipment(int id, Shipment shipment)
-        {
-            if (id != shipment.Id)
-            {
-                return BadRequest();
-            }
-
-
-
-
-
-            _context.Entry(shipment).State = EntityState.Modified;
-
-
-
-
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ShipmentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-
-
-
-
-            return NoContent();
-        }
-
-
-
-        // DELETE: api/Shipment/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShipment(int id)
         {

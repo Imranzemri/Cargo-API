@@ -10,8 +10,7 @@ using System.Text.RegularExpressions;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Cors;
 using System.Net;
-
-
+using CargoApi.Custom_Models;
 
 namespace CargoApi.Controllers
 {
@@ -33,107 +32,99 @@ namespace CargoApi.Controllers
 
 
 
-
-
-        // GET: api/Shipment
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Shipment>>> GetShipments(int page, int pageSize)
+        public async Task<ActionResult<IEnumerable<ShipmentHelper>>> GetTransfers(int page, int pageSize)
         {
-            if (_context.Shipments == null)
+            if (_context.Transfers == null)
             {
                 return NotFound();
             }
             int skip = (page - 1) * pageSize;
-             
-            var data =  _context.Shipments
+
+            var data = _context.Transfers
+                                .Where(x => x.Sts == "Draft")
                                 .Skip(skip)
                                 .Take(pageSize)
+                                //.Select(x => new t { ShptNmbr = x.ShptNmbr, Name = x.Name, Locn = x.Locn, Qnty = x.Qnty })
                                 .ToList();
             int totalCount = _context
-                                    .Shipments
+                                    .Transfers
                                     .Count();
-            var response = new {
-                Items = data,
+            List<ShipmentHelper> listshipmentHelper = new List<ShipmentHelper>();
+
+            foreach (var item in data)
+            {
+                var res = _context.Transfer_Fixtures
+                                   .Where(x => x.ShptNmbr == item.ShptNmbr)
+                                   .ToList();
+                #region Calculate Total Weight
+                decimal? totalkgs = 0;
+                decimal? totallbs = 0;
+                foreach (var f in res)
+                {
+                    if (f.Ptype == "Distinct")
+                    {
+                        if (f.WUnit == "kg")
+                        {
+                            totalkgs += f.Wght;
+                            totallbs += f.Wght * Convert.ToDecimal(2.20462);
+                        }
+                        if (f.WUnit == "lb")
+                        {
+                            totallbs += f.Wght;
+                            var wghtinkg = f.Wght / Convert.ToDecimal(2.20462);
+                            totalkgs += wghtinkg;
+                        }
+                    }
+                    if (f.Ptype == "Identical")
+                    {
+                        if (f.WUnit == "kg")
+                        {
+                            totalkgs += f.Wght * f.Qnty;
+                            var kgs = f.Wght * f.Qnty;
+                            totallbs += kgs * Convert.ToDecimal(2.20462);
+                        }
+                        if (f.WUnit == "lb")
+                        {
+                            totallbs += f.Wght * f.Qnty;
+                            var lbs = f.Wght * f.Qnty;
+                            totalkgs += lbs / Convert.ToDecimal(2.20462);
+                        }
+                    }
+                }
+                #endregion
+                #region Get Receipt Number
+
+                var rcptNmbr = _context.Transfer_Receipts
+                                      .Where(x => x.ShptNmbr == item.ShptNmbr)
+                                      .FirstOrDefault()?.RcptNmbr;
+                var mainRcpNo = rcptNmbr.Split('-');
+
+                #endregion
+                var shpmntHelper = new ShipmentHelper
+                {
+                    Name = item.Name,
+                    ShpNmbr = item.ShptNmbr,
+                    Qnty = item.Qnty,
+                    TotalKg = totalkgs,
+                    TotalLb = totallbs,
+                    RcptNmr = mainRcpNo[0]
+                };
+                listshipmentHelper.Add(shpmntHelper);
+            }
+            var response = new
+            {
+                Items = listshipmentHelper,
                 totalCount = totalCount
             };
             return Ok(response);
         }
-        // GET: api/Shipment/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Shipment>> GetShipment(int id)
-        //{
-        //    if (_context.Shipments == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var shipment = await _context.Shipments.FindAsync(id);
 
 
 
 
 
-        //    if (shipment == null)
-        //    {
-        //        return NotFound();
-        //    }
 
-
-
-
-
-        //    return shipment;
-        //}
-
-
-
-
-
-        // PUT: api/Shipment/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutShipment(int id, Shipment shipment)
-        {
-            if (id != shipment.Id)
-            {
-                return BadRequest();
-            }
-
-
-
-
-
-            _context.Entry(shipment).State = EntityState.Modified;
-
-
-
-
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ShipmentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-
-
-
-
-            return NoContent();
-        }
-
-
-
-        // DELETE: api/Shipment/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShipment(int id)
         {

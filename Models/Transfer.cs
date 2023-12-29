@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CargoApi.Models
 {
@@ -9,11 +10,8 @@ namespace CargoApi.Models
         public Transfer()
         {
             Transfer_Receipts = new HashSet<Transfer_Receipt>();
-           // DriverDetails = new HashSet<Driver>();
+            Transfer_Drivers = new HashSet<Transfer_Driver>();
             Transfer_Fixtures=new HashSet<Transfer_Fixture>();
-            WeightCollection = new List<WeightArrayItem_Transfer>();
-            DimensionCollection = new List<DimensionArrayItem_Transfer>();
-
         }
 
         public int Id { get; set; }
@@ -26,11 +24,15 @@ namespace CargoApi.Models
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
-        public virtual ICollection<Transfer_Receipt> Transfer_Receipts { get; set; }
-        public virtual ICollection<Transfer_Fixture> Transfer_Fixtures { get; set; }
-        public List<WeightArrayItem_Transfer> WeightCollection { get; set; }
-        public List<DimensionArrayItem_Transfer> DimensionCollection { get; set; }
-        public List<RcptNumbers_Transfer> RcptNmbr { get; set; }
+        public virtual ICollection<Transfer_Receipt>? Transfer_Receipts { get; set; }
+        public virtual ICollection<Transfer_Fixture>? Transfer_Fixtures { get; set; }
+        public virtual ICollection<Transfer_Driver>? Transfer_Drivers { get; set; }
+        [NotMapped]
+        public List<WeightArrayItem_Transfer>? WeightCollection { get; set; }
+        [NotMapped]
+        public List<DimensionArrayItem_Transfer>? DimensionCollection { get; set; }
+        [NotMapped]
+        public List<RcptNumbers_Transfer>? RcptNmbr { get; set; }
     }
 
     [Owned]
