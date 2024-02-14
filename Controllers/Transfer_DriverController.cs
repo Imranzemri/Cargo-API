@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CargoApi.Models;
 using Microsoft.AspNetCore.Cors;
 using CargoApi.Custom_Models;
+using System.Net.Mail;
 
 namespace CargoApi.Controllers
 {
@@ -50,10 +51,30 @@ namespace CargoApi.Controllers
                             shipment.Sts = "Published";
                             await _context.SaveChangesAsync();
                         }
+                        bool res = false;
+                        if (driverDetail.Type == "Outside Vendor")
+                        {
+                            res = SendEmail(driverDetail);
+                        }
+                        else
+                        {
+                            res = SendEmail(shipment);
 
-                        transaction.Commit();
-                        driverDetail.ShptNmbrNavigationTransferDriver = null;
-                        return Ok(driverDetail);
+                        }
+                       
+
+                        if (res)
+                        {
+                            transaction.Commit();
+                            driverDetail.ShptNmbrNavigationTransferDriver = null;
+                            return Ok(driverDetail);
+                        }
+                        else
+                        {
+                            // Rollback the transaction in case of an error
+                            transaction.Rollback();
+                            return BadRequest("Failure sending mail");
+                        }
 
                     }
                     catch (Exception ex)
@@ -93,6 +114,147 @@ namespace CargoApi.Controllers
         private bool Transfer_DriverExists(int id)
         {
             return (_context.Transfer_Drivers?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        //outside driver
+        private bool SendEmail(Transfer_Driver dr)
+        {
+            try
+            {
+                var body = $"Here are the Driver details for {dr.Nme}:\n";
+                body += $"Shipment Number: {dr.ShptNmbr}\n";
+                // body += $"Dimension: {shipmentData.Dmnsn}\n";
+                // body += $"Weight: {shipmentData.Wght}\n";
+                body += $"Carrier Name: {dr.Carir_Nme}\n";
+                body += $"License Plate Number: {dr.Lcns_Plt_Nmbr}\n";
+                //body += $"Quantity: {shipmentData.Qnty}\n";
+
+                string smtpServer = "smtp.gmail.com";
+                int smtpPort = 587;
+                string username = "pwswarehouseportal@gmail.com";
+                string password = "rauu ksch fzxs zqvr";
+
+                var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
+                //var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
+                var toAddress = new List<MailAddress>
+                {
+                    new MailAddress(dr.Rpnt, "Receiver")
+                    //new MailAddress(dr.CstmRpnt,"Receiver")
+
+                };
+
+
+                var images = ShipmentController.GetImagesByPrefix("Id" + dr.ShptNmbr);
+
+                // Create and configure the email message
+                MailMessage message = new MailMessage();
+                message.From = fromAddress;
+                foreach (var to in toAddress)
+                {
+                    message.To.Add(to);
+                }
+                message.Subject = $"Update of Shipment Details - Shipment No. {dr.ShptNmbr} - Driver's Details";
+                message.Body = body;
+
+                // Attach images to the email
+                foreach (var imageName in images)
+                {
+                    try
+                    {
+                        string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
+                        Attachment attachment = new Attachment(imagePath);
+                        message.Attachments.Add(attachment);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error attaching image '{imageName}': {ex.Message}");
+                    }
+                }
+
+                // Send the email
+                SmtpClient smtp = new SmtpClient(smtpServer);
+                smtp.Port = smtpPort; //  SMTP port number
+                smtp.Credentials = new System.Net.NetworkCredential(username, password);
+                smtp.EnableSsl = true; // Set to true if you are using SSL      
+                smtp.Send(message);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+
+
+
+        //priority driver
+        private bool SendEmail(Transfer shipmentData)
+        {
+            try
+            {
+                var body = $"Here are the Driver details for {shipmentData.Name}:\n";
+                body += $"Shipment Number: {shipmentData.ShptNmbr}\n";
+                // body += $"Dimension: {shipmentData.Dmnsn}\n";
+                // body += $"Weight: {shipmentData.Wght}\n";
+                body += $"Location: {shipmentData.Locn}\n";
+                body += $"Note: {shipmentData.Note}\n";
+                body += $"Quantity: {shipmentData.Qnty}\n";
+
+                string smtpServer = "smtp.gmail.com";
+                int smtpPort = 587;
+                string username = "pwswarehouseportal@gmail.com";
+                string password = "rauu ksch fzxs zqvr";
+
+                var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
+                //var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
+                var toAddress = new List<MailAddress>
+                {
+                    new MailAddress(shipmentData.Rpnt, "Receiver")
+                   // new MailAddress(shipmentData.CstmRpnt,"Receiver")
+
+                };
+
+
+                // var images = GetImagesByPrefix(shipmentData.ShptNmbr);
+
+                // Create and configure the email message
+                MailMessage message = new MailMessage();
+                message.From = fromAddress;
+                foreach (var to in toAddress)
+                {
+                    message.To.Add(to);
+                }
+                message.Subject = $"Update of Shipment Details - Shipment No. {shipmentData.ShptNmbr} - Driver's Details";
+                message.Body = body;
+
+                // Attach images to the email
+                //foreach (var imageName in images)
+                //{
+                //    try
+                //    {
+                //        string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
+                //        Attachment attachment = new Attachment(imagePath);
+                //        message.Attachments.Add(attachment);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Console.WriteLine($"Error attaching image '{imageName}': {ex.Message}");
+                //    }
+                //}
+
+                // Send the email
+                SmtpClient smtp = new SmtpClient(smtpServer);
+                smtp.Port = smtpPort; //  SMTP port number
+                smtp.Credentials = new System.Net.NetworkCredential(username, password);
+                smtp.EnableSsl = true; // Set to true if you are using SSL      
+                smtp.Send(message);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
     }
 }

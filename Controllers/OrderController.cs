@@ -125,7 +125,7 @@ namespace CargoApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateShipment([FromBody] Transfer shipmentData)
+        public async Task<IActionResult> CreateShipment([FromBody] Order shipmentData)
         {
             try
             {
@@ -200,8 +200,7 @@ namespace CargoApi.Controllers
 
 
 
-                        //var result = SendEmail(shipmentData);
-                        var result = true;
+                        var result = SendEmail(shipmentData);
                         if (result)
                         {
                             // Commit the transaction
@@ -232,46 +231,59 @@ namespace CargoApi.Controllers
         {
             try
             {
-                string smtpServer = "smtp.office365.com";
-                int smtpPort = 587;
-                string username = "pwswhse@priorityworldwide.com";
-                string password = "Winter2023@)@#";
-
-
-
-
-
-                var fromAddress = new MailAddress("pwswhse@priorityworldwide.com", "Priority WorldWide");
-                var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
-
-
-
-
-
-                // Customize the email body based on your requirements
                 var body = $"Here are the shipment details for {shipmentData.Name}:\n";
                 body += $"Shipment Number: {shipmentData.ShptNmbr}\n";
-                //body += $"Dimension: {shipmentData.Dmnsn}\n";
+                // body += $"Dimension: {shipmentData.Dmnsn}\n";
                 // body += $"Weight: {shipmentData.Wght}\n";
                 body += $"Location: {shipmentData.Locn}\n";
                 body += $"Note: {shipmentData.Note}\n";
                 body += $"Quantity: {shipmentData.Qnty}\n";
 
+                string smtpServer = "smtp.gmail.com";
+                int smtpPort = 587;
+                string username = "pwswarehouseportal@gmail.com";
+                string password = "rauu ksch fzxs zqvr";
+
+                var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
+                //var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
+                var toAddress = new List<MailAddress>
+                {
+                    new MailAddress(shipmentData.Rpnt, "Receiver"),
+                    new MailAddress(shipmentData.CstmRpnt,"Receiver")
+
+                };
+
+
+                var images = ShipmentController.GetImagesByPrefix(shipmentData.ShptNmbr);
+
                 // Create and configure the email message
                 MailMessage message = new MailMessage();
                 message.From = fromAddress;
-                message.To.Add(toAddress);
-                message.Subject = "Shipment Details";
+                foreach (var to in toAddress)
+                {
+                    message.To.Add(to);
+                }
+                message.Subject = $"ORDER-Shipment Details-Shipment No. {shipmentData.ShptNmbr}";
                 message.Body = body;
+
                 // Attach images to the email
-                //foreach (var image in shipmentData.Imgs)
-                //{
-                //    Attachment attachment = new Attachment(image);
-                //    message.Attachments.Add(attachment);
-                //}
+                foreach (var imageName in images)
+                {
+                    try
+                    {
+                        string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
+                        Attachment attachment = new Attachment(imagePath);
+                        message.Attachments.Add(attachment);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error attaching image '{imageName}': {ex.Message}");
+                    }
+                }
+
                 // Send the email
                 SmtpClient smtp = new SmtpClient(smtpServer);
-                smtp.Port = smtpPort; // Your SMTP port number
+                smtp.Port = smtpPort; //  SMTP port number
                 smtp.Credentials = new System.Net.NetworkCredential(username, password);
                 smtp.EnableSsl = true; // Set to true if you are using SSL      
                 smtp.Send(message);
@@ -282,6 +294,9 @@ namespace CargoApi.Controllers
                 return false;
             }
         }
+
+
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GenerateReceiptNumber(int qnty, string lastrcpNo)

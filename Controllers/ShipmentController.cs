@@ -11,6 +11,7 @@ using System.Net.Mail;
 using Microsoft.AspNetCore.Cors;
 using System.Net;
 using CargoApi.Custom_Models;
+using System.Net.Http;
 
 namespace CargoApi.Controllers
 {
@@ -226,8 +227,7 @@ namespace CargoApi.Controllers
 
 
 
-                        //var result = SendEmail(shipmentData);
-                        var result = true;
+                        var result = SendEmail(shipmentData);
                         if (result)
                         {
                             // Commit the transaction
@@ -257,50 +257,65 @@ namespace CargoApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        private bool SendEmail(Transfer shipmentData)
+
+        
+        private bool SendEmail(Shipment shipmentData)
         {
             try
             {
-                string smtpServer = "smtp.office365.com";
-                int smtpPort = 587;
-                string username = "pwswhse@priorityworldwide.com";
-                string password = "Winter2023@)@#"; 
-
-
-
-
-
-                var fromAddress = new MailAddress("pwswhse@priorityworldwide.com", "Priority WorldWide");
-                var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
-
-
-
-
-
-                // Customize the email body based on your requirements
                 var body = $"Here are the shipment details for {shipmentData.Name}:\n";
                 body += $"Shipment Number: {shipmentData.ShptNmbr}\n";
-               // body += $"Dimension: {shipmentData.Dmnsn}\n";
-               // body += $"Weight: {shipmentData.Wght}\n";
+                // body += $"Dimension: {shipmentData.Dmnsn}\n";
+                // body += $"Weight: {shipmentData.Wght}\n";
                 body += $"Location: {shipmentData.Locn}\n";
                 body += $"Note: {shipmentData.Note}\n";
                 body += $"Quantity: {shipmentData.Qnty}\n";
 
+                string smtpServer = "smtp.gmail.com";
+                int smtpPort = 587;
+                string username = "pwswarehouseportal@gmail.com";
+                string password = "rauu ksch fzxs zqvr"; 
+
+                var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
+                //var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
+                var toAddress = new List<MailAddress>
+                {
+                    new MailAddress(shipmentData.Rpnt, "Receiver"),
+                    new MailAddress(shipmentData.CstmRpnt,"Receiver")
+
+                };
+
+
+                var images = GetImagesByPrefix(shipmentData.ShptNmbr);
+
                 // Create and configure the email message
                 MailMessage message = new MailMessage();
                 message.From = fromAddress;
-                message.To.Add(toAddress);
-                message.Subject = "Shipment Details";
+                foreach (var to in toAddress)
+                {
+                    message.To.Add(to);
+                }
+                message.Subject = $"RECEIVING-Shipment Details-Shipment No. {shipmentData.ShptNmbr}";
                 message.Body = body;
+
                 // Attach images to the email
-                //foreach (var image in shipmentData.Imgs)
-                //{
-                //    Attachment attachment = new Attachment(image);
-                //    message.Attachments.Add(attachment);
-                //}
+                foreach (var imageName in images)
+                {
+                    try
+                    {
+                        string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
+                        Attachment attachment = new Attachment(imagePath);
+                        message.Attachments.Add(attachment);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error attaching image '{imageName}': {ex.Message}");
+                    }
+                }
+
                 // Send the email
                 SmtpClient smtp = new SmtpClient(smtpServer);
-                smtp.Port = smtpPort; // Your SMTP port number
+                smtp.Port = smtpPort; //  SMTP port number
                 smtp.Credentials = new System.Net.NetworkCredential(username, password);
                 smtp.EnableSsl = true; // Set to true if you are using SSL      
                 smtp.Send(message);
@@ -384,8 +399,8 @@ namespace CargoApi.Controllers
                 if (thumbnail != null && thumbnail.Length > 0)
                 {
                     var fileName = Path.GetFileName(thumbnail.FileName);
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", uniqueFileName);
+                  //  var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
 
 
 
@@ -420,9 +435,105 @@ namespace CargoApi.Controllers
             }
         }
 
-       
-    }
-   
 
-   
+
+
+        //[HttpPost]
+        //[Route("testemail")]
+        //public bool testemail()
+        //{
+        //    try
+        //    {
+        //        string smtpServer = "smtp.gmail.com";
+        //        int smtpPort = 587;
+        //        //string username = "imrankhanzemri@gmail.com";
+        //        //string password = "gqgz hqlv rtwh xdtx";
+        //        string username = "pwswarehouseportal@gmail.com";
+        //        string password = "rauu ksch fzxs zqvr";
+        //       // var fromAddress = new MailAddress("imrankhanzemri@gmail.com", "Priority WorldWide");
+
+        //         var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
+        //        var toAddress = new MailAddress("imrankhanzemri@gmail.com", "Receiver");
+
+        //        // Get the list of image names using the GetImagesByPrefix method
+        //        var images = GetImagesByPrefix("Tnb-33");
+
+        //        // Create and configure the email message
+        //        MailMessage message = new MailMessage();
+        //        message.From = fromAddress;
+        //        message.To.Add(toAddress);
+        //        message.Subject = "Shipment Details";
+        //        message.Body = "Here are the shipment details for:\n";
+        //        message.IsBodyHtml = false;
+
+        //        // Attach images to the email
+        //        foreach (var imageName in images)
+        //        {
+        //            try
+        //            {
+        //                string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
+        //                Attachment attachment = new Attachment(imagePath);
+        //                message.Attachments.Add(attachment);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                // Handle exception if the image file is not found
+        //                Console.WriteLine($"Error attaching image '{imageName}': {ex.Message}");
+        //            }
+        //        }
+
+        //        // Set up the SMTP client and send the email
+        //        SmtpClient smtp = new SmtpClient(smtpServer);
+        //        smtp.Port = smtpPort;
+        //        smtp.UseDefaultCredentials = false;
+        //        smtp.Credentials = new NetworkCredential(username, password);
+        //        smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+        //        smtp.EnableSsl = true;
+
+        //        // Send the email
+        //        smtp.Send(message);
+
+        //        return true;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        // Handle the exception
+        //        Console.WriteLine($"Error sending email: {e.Message}");
+        //        return false;
+        //    }
+        //}
+
+
+
+        public static List<string> GetImagesByPrefix(string prefix)
+        {
+            List<string> matchingImages = new List<string>();
+            try
+            {
+                var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+            if (!Directory.Exists(imagesDirectory))
+            {
+                return matchingImages;
+            }
+
+             matchingImages = Directory.GetFiles(imagesDirectory)
+                .Select(Path.GetFileName)
+                .Where(fileName => fileName.StartsWith(prefix + "_"))
+                .ToList();
+
+            return matchingImages;
+            }
+            catch (Exception ex)
+            {
+                return matchingImages;
+            }
+        }
+
+
+
+    }
+
+
+
 }
