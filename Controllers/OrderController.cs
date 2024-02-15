@@ -370,8 +370,8 @@ namespace CargoApi.Controllers
                 if (thumbnail != null && thumbnail.Length > 0)
                 {
                     var fileName = Path.GetFileName(thumbnail.FileName);
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", uniqueFileName);
+                    //  var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
+                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
 
 
 
