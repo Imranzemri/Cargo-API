@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Cors;
 using System.Net;
 using CargoApi.Custom_Models;
 using System.Net.Http;
+using CargoApi.Helper_Methods;
 
 namespace CargoApi.Controllers
 {
@@ -227,7 +228,13 @@ namespace CargoApi.Controllers
 
 
 
-                        var result = SendEmail(shipmentData);
+                        Tuple<string, string, string, string, string, string,int?> items =
+                               new Tuple<string, string, string, string, string, string, int?>(
+                                   shipmentData.Name,shipmentData.ShptNmbr,shipmentData.Locn,shipmentData.Note,
+                                   shipmentData.Rpnt,shipmentData.CstmRpnt,shipmentData.Qnty
+                                   );
+                        
+                        var result = HelperMethods.SendEmail(items,"RECEIVING");
                         if (result)
                         {
                             // Commit the transaction
@@ -259,73 +266,6 @@ namespace CargoApi.Controllers
         }
 
         
-        private bool SendEmail(Shipment shipmentData)
-        {
-            try
-            {
-                var body = $"Here are the shipment details for {shipmentData.Name}:\n";
-                body += $"Shipment Number: {shipmentData.ShptNmbr}\n";
-                // body += $"Dimension: {shipmentData.Dmnsn}\n";
-                // body += $"Weight: {shipmentData.Wght}\n";
-                body += $"Location: {shipmentData.Locn}\n";
-                body += $"Note: {shipmentData.Note}\n";
-                body += $"Quantity: {shipmentData.Qnty}\n";
-
-                string smtpServer = "smtp.gmail.com";
-                int smtpPort = 587;
-                string username = "pwswarehouseportal@gmail.com";
-                string password = "rauu ksch fzxs zqvr"; 
-
-                var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
-                //var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
-                var toAddress = new List<MailAddress>
-                {
-                    new MailAddress(shipmentData.Rpnt, "Receiver"),
-                    new MailAddress(shipmentData.CstmRpnt,"Receiver")
-
-                };
-
-
-                var images = GetImagesByPrefix(shipmentData.ShptNmbr);
-
-                // Create and configure the email message
-                MailMessage message = new MailMessage();
-                message.From = fromAddress;
-                foreach (var to in toAddress)
-                {
-                    message.To.Add(to);
-                }
-                message.Subject = $"RECEIVING-Shipment Details-Shipment No. {shipmentData.ShptNmbr}";
-                message.Body = body;
-
-                // Attach images to the email
-                foreach (var imageName in images)
-                {
-                    try
-                    {
-                        string imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
-                        Attachment attachment = new Attachment(imagePath);
-                        message.Attachments.Add(attachment);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error attaching image '{imageName}': {ex.Message}");
-                    }
-                }
-
-                // Send the email
-                SmtpClient smtp = new SmtpClient(smtpServer);
-                smtp.Port = smtpPort; //  SMTP port number
-                smtp.Credentials = new System.Net.NetworkCredential(username, password);
-                smtp.EnableSsl = true; // Set to true if you are using SSL      
-                smtp.Send(message);
-                return true;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GenerateReceiptNumber(int qnty,string lastrcpNo)
@@ -505,30 +445,6 @@ namespace CargoApi.Controllers
 
 
 
-        public static List<string> GetImagesByPrefix(string prefix)
-        {
-            List<string> matchingImages = new List<string>();
-            try
-            {
-                var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-
-            if (!Directory.Exists(imagesDirectory))
-            {
-                return matchingImages;
-            }
-
-             matchingImages = Directory.GetFiles(imagesDirectory)
-                .Select(Path.GetFileName)
-                .Where(fileName => fileName.StartsWith(prefix + "_"))
-                .ToList();
-
-            return matchingImages;
-            }
-            catch (Exception ex)
-            {
-                return matchingImages;
-            }
-        }
 
 
 
