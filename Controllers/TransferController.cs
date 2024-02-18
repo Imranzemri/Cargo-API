@@ -46,7 +46,7 @@ namespace CargoApi.Controllers
                                 .ToList();
             int totalCount = _context
                                     .Transfers
-                                    .Count();
+                                    .Count(x=>x.Sts == "Draft");
             List<ShipmentHelper> listshipmentHelper = new List<ShipmentHelper>();
 
             foreach (var item in data)
