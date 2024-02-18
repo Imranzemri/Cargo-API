@@ -24,17 +24,6 @@ namespace CargoApi.Controllers
             _context = context;
         }
 
-       
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order_Driver>>> GetOrder_Drivers()
-        {
-          if (_context.Order_Drivers == null)
-          {
-              return NotFound();
-          }
-            return await _context.Order_Drivers.ToListAsync();
-        }
-
         [HttpPost]
         public async Task<ActionResult<Order_Driver>> PostDriverDetail(Order_Driver driverDetail)
         {
@@ -105,31 +94,6 @@ namespace CargoApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder_Driver(int id)
-        {
-            if (_context.Order_Drivers == null)
-            {
-                return NotFound();
-            }
-            var order_Driver = await _context.Order_Drivers.FindAsync(id);
-            if (order_Driver == null)
-            {
-                return NotFound();
-            }
-
-            _context.Order_Drivers.Remove(order_Driver);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool Order_DriverExists(int id)
-        {
-            return (_context.Order_Drivers?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
 

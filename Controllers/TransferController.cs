@@ -22,10 +22,6 @@ namespace CargoApi.Controllers
     {
         private readonly PRIORITY_WWDContext _context;
 
-
-
-
-
         public TransferController(PRIORITY_WWDContext context)
         {
             _context = context;
@@ -120,51 +116,6 @@ namespace CargoApi.Controllers
             };
             return Ok(response);
         }
-
-
-
-
-
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteShipment(int id)
-        {
-            if (_context.Shipments == null)
-            {
-                return NotFound();
-            }
-            var shipment = await _context.Shipments.FindAsync(id);
-            if (shipment == null)
-            {
-                return NotFound();
-            }
-
-
-
-
-
-            _context.Shipments.Remove(shipment);
-            await _context.SaveChangesAsync();
-
-
-
-
-
-            return NoContent();
-        }
-
-
-
-
-
-        private bool ShipmentExists(int id)
-        {
-            return (_context.Shipments?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
-
-
-
-
 
         [HttpPost]
         public async Task<IActionResult> CreateShipment([FromBody] Transfer shipmentData)
@@ -334,52 +285,5 @@ namespace CargoApi.Controllers
             return Ok(rlist);
         }
 
-
-
-        [HttpPost]
-        [Route("uploadImage")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadImage(IFormFile thumbnail)
-        {
-            try
-            {
-                if (thumbnail != null && thumbnail.Length > 0)
-                {
-                    var fileName = Path.GetFileName(thumbnail.FileName);
-                    //  var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-
-
-
-                    if (!Directory.Exists(Path.GetDirectoryName(filePath)))
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-                    }
-
-
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await thumbnail.CopyToAsync(stream);
-                    }
-
-
-
-
-
-
-
-                    return Ok("File uploaded successfully");
-                }
-                else
-                {
-                    return BadRequest("Invalid file");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex}");
-            }
-        }
     }
 }

@@ -26,8 +26,6 @@ namespace CargoApi.Controllers
         }
 
 
-
-
         [HttpPost]
         public async Task<ActionResult<Transfer_Driver>> PostDriverDetail(Transfer_Driver driverDetail)
         {
@@ -96,31 +94,6 @@ namespace CargoApi.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTransfer_Driver(int id)
-        {
-            if (_context.Transfer_Drivers == null)
-            {
-                return NotFound();
-            }
-            var transfer_Driver = await _context.Transfer_Drivers.FindAsync(id);
-            if (transfer_Driver == null)
-            {
-                return NotFound();
-            }
-
-            _context.Transfer_Drivers.Remove(transfer_Driver);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool Transfer_DriverExists(int id)
-        {
-            return (_context.Transfer_Drivers?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
 
