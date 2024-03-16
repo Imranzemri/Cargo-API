@@ -1,4 +1,5 @@
 ﻿using CargoApi.Models;
+using Humanizer;
 using System.Net.Mail;
 
 namespace CargoApi.Helper_Methods
@@ -27,22 +28,28 @@ namespace CargoApi.Helper_Methods
 
                 var fromAddress = new MailAddress("pwswarehouseportal@gmail.com", "Priority WorldWide");
                 //var toAddress = new MailAddress(shipmentData.Rpnt, "Receiver");
-                var toAddress = new List<MailAddress>
-                {
-                    new MailAddress(shipmentData.Item5, "Receiver"),
-                    new MailAddress(shipmentData.Item6,"Receiver")
-
-                };
-
-
                 var images = GetImagesByPrefix(shipmentData.Item2);
 
                 // Create and configure the email message
                 MailMessage message = new MailMessage();
                 message.From = fromAddress;
-                foreach (var to in toAddress)
+
+                if (shipmentData.Item6 == null || shipmentData.Item6 == "")
                 {
-                    message.To.Add(to);
+                    var toMailAddress = new MailAddress(shipmentData.Item5);
+                    message.To.Add(toMailAddress);
+                }
+                else
+                {
+                     var toAddress = new List<MailAddress>
+                {
+                    new MailAddress(shipmentData.Item5, "Receiver"),
+                    new MailAddress(shipmentData.Item6,"Receiver")
+                };
+                    foreach (var to in toAddress)
+                    {
+                        message.To.Add(to);
+                    }
                 }
                 message.Subject = $"{shpType}-Shipment Details-Shipment No. {shipmentData.Item2}";
                 message.Body = body;

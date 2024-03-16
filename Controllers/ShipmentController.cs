@@ -230,7 +230,30 @@ namespace CargoApi.Controllers
             }
         }
 
-        
+
+
+        [HttpGet("CheckDuplicateShipmentNumber")]
+        public async Task<IActionResult> CheckDuplicateShipmentNumber(string shipmentNumber)
+        {
+            try
+            {
+                bool isDuplicate = await _context.Shipments.AnyAsync(x => x.ShptNmbr == shipmentNumber);
+
+                if (isDuplicate)
+                {
+                    return Ok("Duplicate Shipment Number");
+                }
+                else
+                {
+                    return Ok("Success");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GenerateReceiptNumber(int qnty,string lastrcpNo)
@@ -366,7 +389,6 @@ namespace CargoApi.Controllers
 
 
     }
-
 
 
 }
