@@ -139,6 +139,23 @@ namespace CargoApi.Models
                 entity.Property(e => e.Sts)
                    .HasMaxLength(50)
                    .HasColumnName("STS");
+                entity.Property(e => e.PO)
+                   .HasMaxLength(100)
+                   .HasColumnName("PO");
+                entity.Property(e => e.TrukNmbr)
+                   .HasMaxLength(100)
+                   .HasColumnName("TRUK_NMBR");
+                entity.Property(e => e.Supp)
+                   .HasMaxLength(100)
+                   .HasColumnName("SUPP");
+                entity.Property(e => e.InsrDate).HasColumnName("INSR_DATE");
+                entity.Property(e => e.UpdtDate).HasColumnName("UPDT_DATE");
+                entity.Property(e => e.InsrBy)
+                    .HasMaxLength(50)
+                    .HasColumnName("INSR_BY");
+                entity.Property(e => e.UpdtBy)
+                   .HasMaxLength(50)
+                   .HasColumnName("UPDT_BY");
 
                 entity.Property(e => e.ShptNmbr)
                     .HasMaxLength(255)
@@ -179,6 +196,12 @@ namespace CargoApi.Models
                     .HasMaxLength(50)
                     .HasColumnName("PRDT_TYPE");
                 entity.Property(e => e.Qnty).HasColumnName("QNTY");
+                entity.Property(e => e.Locn)
+                    .HasMaxLength(100)
+                    .HasColumnName("LOCN");
+                entity.Property(e => e.GoodDesc)
+                    .HasMaxLength(100)
+                    .HasColumnName("GOOD_DESC");
 
                 entity.HasOne(d => d.ShptNmbrNavigationFix)
                    .WithMany(p => p.Fixtures)

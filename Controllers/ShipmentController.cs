@@ -26,9 +26,9 @@ namespace CargoApi.Controllers
         {
             _context = context;
         }
-  
 
-        [HttpGet]
+
+        [HttpGet("GetShipments")]
         public async Task<ActionResult<IEnumerable<ShipmentHelper>>> GetShipments(int page, int pageSize)
         {
             if (_context.Shipments == null)
@@ -36,75 +36,76 @@ namespace CargoApi.Controllers
                 return NotFound();
             }
             int skip = (page - 1) * pageSize;
-             
-            var data =  _context.Shipments
-                                .Where(x => x.Sts == "Draft")
+
+            var data = _context.Shipments
+                                .Where(x => x.Sts != "Published")
                                 .Skip(skip)
                                 .Take(pageSize)
-                                //.Select(x=>new Shipment { ShptNmbr=x.ShptNmbr,Name=x.Name,Locn=x.Locn,Qnty=x.Qnty})
+                                .OrderByDescending(x => x.Id)
                                 .ToList();
             int totalCount = _context
                                     .Shipments
-                                    .Count(x=>x.Sts == "Draft");
+                                    .Count(x => x.Sts != "Published");
             List<ShipmentHelper> listshipmentHelper = new List<ShipmentHelper>();
-  
+
             foreach (var item in data)
             {
-              var res =  _context.Fixtures
-                                 .Where(x => x.ShptNmbr==item.ShptNmbr)
-                                 .ToList();
+                //var res =  _context.Fixtures
+                //                   .Where(x => x.ShptNmbr==item.ShptNmbr)
+                //                   .ToList();
                 #region Calculate Total Weight
-                decimal? totalkgs = 0;
-                decimal? totallbs = 0;
-                foreach (var f in res)
-                {
-                    if(f.Ptype == "Distinct")
-                    {
-                        if(f.WUnit == "kg")
-                        {
-                            totalkgs += f.Wght;
-                            totallbs += f.Wght * Convert.ToDecimal(2.20462);
-                        }
-                        if(f.WUnit == "lb")
-                        {
-                            totallbs+= f.Wght;
-                            var wghtinkg = f.Wght / Convert.ToDecimal(2.20462);
-                            totalkgs += wghtinkg;
-                        }
-                    }
-                    if(f.Ptype == "Identical")
-                    {
-                        if(f.WUnit == "kg")
-                        {
-                            totalkgs += f.Wght * f.Qnty;
-                            var kgs = f.Wght * f.Qnty;
-                            totallbs += kgs * Convert.ToDecimal(2.20462);
-                        }
-                        if (f.WUnit == "lb")
-                        {
-                            totallbs += f.Wght * f.Qnty;
-                            var lbs = f.Wght * f.Qnty;
-                            totalkgs += lbs / Convert.ToDecimal(2.20462);
-                        }
-                    }
-                }
+                //decimal? totalkgs = 0;
+                //decimal? totallbs = 0;
+                //foreach (var f in res)
+                //{
+                //    if(f.Ptype == "Distinct")
+                //    {
+                //        if(f.WUnit == "kg")
+                //        {
+                //            totalkgs += f.Wght;
+                //            totallbs += f.Wght * Convert.ToDecimal(2.20462);
+                //        }
+                //        if(f.WUnit == "lb")
+                //        {
+                //            totallbs+= f.Wght;
+                //            var wghtinkg = f.Wght / Convert.ToDecimal(2.20462);
+                //            totalkgs += wghtinkg;
+                //        }
+                //    }
+                //    if(f.Ptype == "Identical")
+                //    {
+                //        if(f.WUnit == "kg")
+                //        {
+                //            totalkgs += f.Wght * f.Qnty;
+                //            var kgs = f.Wght * f.Qnty;
+                //            totallbs += kgs * Convert.ToDecimal(2.20462);
+                //        }
+                //        if (f.WUnit == "lb")
+                //        {
+                //            totallbs += f.Wght * f.Qnty;
+                //            var lbs = f.Wght * f.Qnty;
+                //            totalkgs += lbs / Convert.ToDecimal(2.20462);
+                //        }
+                //    }
+                //}
                 #endregion
                 #region Get Receipt Number
 
-                var rcptNmbr= _context.Receipts
-                                      .Where(x=>x.ShptNmbr==item.ShptNmbr)
-                                      .FirstOrDefault()?.RcptNmbr;
-               var mainRcpNo= rcptNmbr.Split('-');
+                // var rcptNmbr= _context.Receipts
+                //                       .Where(x=>x.ShptNmbr==item.ShptNmbr)
+                //                       .FirstOrDefault()?.RcptNmbr;
+                //var mainRcpNo= rcptNmbr.Split('-');
 
                 #endregion
                 var shpmntHelper = new ShipmentHelper
                 {
                     Name = item.Name,
                     ShpNmbr = item.ShptNmbr,
-                    Qnty = item.Qnty,
-                    TotalKg = totalkgs,
-                    TotalLb=totallbs,
-                    RcptNmr = mainRcpNo[0]
+                    InsrDate = item.InsrDate,
+                    Sts      = item.Sts
+                    //TotalKg = totalkgs,
+                    //TotalLb=totallbs,
+                    //RcptNmr = mainRcpNo[0]
                 };
                 listshipmentHelper.Add(shpmntHelper);
             }
@@ -115,6 +116,145 @@ namespace CargoApi.Controllers
             return Ok(response);
         }
 
+
+        [HttpGet("GetShipmentById")]
+        public async Task<ActionResult<IEnumerable<ShipmentHelper>>> GetShipmentById(string shpNmbr)
+        {
+            if (_context.Shipments == null)
+            {
+                return NotFound();
+            }
+
+            var DimensionList = new List<DimensionArrayItem>();
+            var WeightList = new List<WeightArrayItem>();
+            var data = _context.Shipments
+                                .Where(x => x.ShptNmbr == shpNmbr)
+                                .OrderByDescending(x => x.Id)
+                                .ToList();
+            string shpNumber = data?.FirstOrDefault()?.ShptNmbr;
+            int totalCount = _context
+                                    .Fixtures
+                                    .Count(x => x.ShptNmbr == shpNumber);
+            List<Shipment> listshipmentHelper = new List<Shipment>();
+
+                var fixtures = _context.Fixtures
+                                   .Where(x => x.ShptNmbr == shpNumber)
+                                   .ToList();
+                foreach (var eachFixture in fixtures)
+                {
+
+                    DimensionList.Add(new DimensionArrayItem
+                    {
+                        Width = Convert.ToDecimal(eachFixture.Width),
+                        Height = Convert.ToDecimal(eachFixture.Height),
+                        Lngth = Convert.ToDecimal(eachFixture.Length),
+                        DUnit = eachFixture.DUnit,
+                        Locn = eachFixture.Locn,
+                        GoodDesc = eachFixture.GoodDesc,
+                        RcptNmbr = eachFixture.RcptNmbr
+                    });
+                    WeightList.Add(new WeightArrayItem
+                    {
+                        Wght = Convert.ToDecimal(eachFixture.Wght),
+                        WUnit = eachFixture.DUnit,
+                        Locn = eachFixture.Locn,
+                        GoodDesc = eachFixture.GoodDesc,
+                        RcptNmbr = eachFixture.RcptNmbr
+                    });
+                }
+                var shpmntHelper = new Shipment
+                {
+                    Name = data.FirstOrDefault().Name,
+                    ShptNmbr = shpNumber,
+                    InsrDate = data.FirstOrDefault().InsrDate,
+                    Sts = data.FirstOrDefault().Sts,
+                    Qnty = data.FirstOrDefault().Qnty,
+                    DimensionCollection = DimensionList,
+                    WeightCollection = WeightList
+                };
+                listshipmentHelper.Add(shpmntHelper);
+            
+            var response = new
+            {
+                Items = listshipmentHelper,
+                totalCount = totalCount
+            };
+            return Ok(response);
+        }
+
+        [HttpGet("GetUpdatedShipments")]
+        public async Task<ActionResult<IEnumerable<ShipmentHelper>>> GetUpdatedShipments(int page, int pageSize)
+        {
+            if (_context.Shipments == null)
+            {
+                return NotFound();
+            }
+            int skip = (page - 1) * pageSize;
+
+            var data = _context.Shipments
+                                .Where(x => x.Sts == "Updated")
+                                .Skip(skip)
+                                .Take(pageSize)
+                                .OrderByDescending(x => x.Id)
+                                .ToList();
+            int totalCount = _context
+                                    .Shipments
+                                    .Count(x => x.Sts != "Updated");
+            List<ShipmentHelper> listshipmentHelper = new List<ShipmentHelper>();
+
+            foreach (var item in data)
+            {
+                var shpmntHelper = new ShipmentHelper
+                {
+                    Name = item.Name,
+                    ShpNmbr = item.ShptNmbr,
+                    InsrDate = item.InsrDate,
+                    Sts = item.Sts
+                };
+                listshipmentHelper.Add(shpmntHelper);
+            }
+            var response = new
+            {
+                Items = listshipmentHelper,
+                totalCount = totalCount
+            };
+            return Ok(response);
+        }
+
+
+
+        // method that will update Goods description and location from review details page
+        [HttpPut("UpdateLocationAndDescription")]
+        public async Task<IActionResult> UpdateLocationAndDescription([FromBody] UpdateHelperModel model)
+        {
+            if (!(string.IsNullOrEmpty(model.ShipmentNo)))
+            {
+                
+               var shipmentFixtures = _context.Fixtures.Where(x=>x.RcptNmbr == model.RcptNumber)
+                                                       .ToList();
+               var shipment = _context.Shipments.Where(s=>s.ShptNmbr == model.ShipmentNo)
+                                                .ToList();
+
+                if(!(string.IsNullOrEmpty(model.Description)) && !(string.IsNullOrEmpty(model.Locn)))
+                {
+                    shipmentFixtures.ForEach(p => p.Locn = model.Locn);
+                    shipmentFixtures.ForEach(p => p.GoodDesc = model.Description);
+                    shipment.ForEach(s => s.Sts = "Updated");
+                }
+                else if (!(string.IsNullOrEmpty(model.Locn)))
+                {
+                    shipmentFixtures.ForEach(p => p.Locn = model.Locn);
+                    shipment.ForEach(s => s.Sts = "Updated");
+                }
+                else
+                {
+                    shipmentFixtures.ForEach(p => p.GoodDesc = model.Description);
+                    shipment.ForEach(s => s.Sts = "Updated");
+                }
+                await  _context.SaveChangesAsync();
+            }
+            return Ok();
+        }
 
 
         [HttpPost]
@@ -144,6 +284,13 @@ namespace CargoApi.Controllers
                             CstmRpnt = shipmentData.CstmRpnt,
                             Qnty = shipmentData.Qnty,
                             Sts= shipmentData.Sts,
+                            PO = shipmentData.PO,
+                            TrukNmbr = shipmentData.TrukNmbr,
+                            Supp = shipmentData.Supp,
+                            InsrDate = DateTime.Now,
+                            InsrBy = shipmentData.InsrBy,
+                            UpdtDate =  DateTime.Now,
+                            UpdtBy = shipmentData.UpdtBy
                         };
                         _context.Shipments.Add(shipment);
 
@@ -180,6 +327,8 @@ namespace CargoApi.Controllers
                                 WUnit=wght.WUnit,
                                 Ptype=wght.Ptype,
                                 Qnty=wght.Qnty,
+                                Locn = wght.Locn,
+                                GoodDesc = wght.GoodDesc,
 
                             };
                             _context.Fixtures.Add(fixture);
@@ -229,6 +378,7 @@ namespace CargoApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
 
 
 

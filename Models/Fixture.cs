@@ -13,6 +13,8 @@
         public string DUnit { get; set; }
         public string? Ptype { get; set; }
         public int? Qnty { get; set; }
+        public string? Locn { get; set; }
+        public string? GoodDesc { get; set; }
         public virtual Shipment? ShptNmbrNavigationFix { get; set; }
        // public virtual Receipt? RcptNmbrNavigationFix { get; set; }
 

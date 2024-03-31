@@ -25,6 +25,14 @@ namespace CargoApi.Models
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
+        public string? PO { get; set; }
+        public string? TrukNmbr { get; set; }
+        public string? Supp { get; set; }
+        public DateTime? InsrDate { get; set; }
+        public DateTime? UpdtDate { get; set; }
+        public string? InsrBy { get; set; }
+        public string? UpdtBy { get; set; }
+
         public virtual ICollection<Receipt>? Receipts { get; set; }
         public virtual ICollection<Fixture>? Fixtures { get; set; }
         public virtual ICollection<Driver>? Drivers { get; set; }
@@ -44,6 +52,8 @@ namespace CargoApi.Models
         public string WUnit { get; set; }
         public string? Ptype { get; set; }
         public int? Qnty { get; set; }
+        public string? Locn { get; set; }
+        public string? GoodDesc { get; set; }
     }
     [Owned]
 
@@ -57,6 +67,8 @@ namespace CargoApi.Models
         public string DUnit { get; set; }
         public string? Ptype { get; set; }
         public int? Qnty { get; set; }
+        public string? Locn { get; set; }
+        public string? GoodDesc { get; set; }
     }
     [Owned]
     public class RcptNumbers
