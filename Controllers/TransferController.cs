@@ -52,7 +52,7 @@ namespace CargoApi.Controllers
             foreach (var item in data)
             {
                 var res = _context.Transfer_Fixtures
-                                   .Where(x => x.ShptNmbr == item.ShptNmbr)
+                                   .Where(x => x.NewShptNmbr == item.ShptNmbr)
                                    .ToList();
                 #region Calculate Total Weight
                 decimal? totalkgs = 0;
@@ -170,7 +170,7 @@ namespace CargoApi.Controllers
 
                             var fixture = new Transfer_Fixture
                             {
-                                ShptNmbr = shipmentData.ShptNmbr,
+                                //ShptNmbr = shipmentData.ShptNmbr,
                                 RcptNmbr = dim.RcptNmbr,
                                 Length = dim.Lngth,
                                 Width = dim.Width,
@@ -179,7 +179,11 @@ namespace CargoApi.Controllers
                                 Wght = wght.Wght,
                                 WUnit = wght.WUnit,
                                 Ptype=wght.Ptype,
-                                Qnty=wght.Qnty
+                                Qnty=wght.Qnty,
+                                GoodDesc = wght.GoodDesc,
+                                Locn = wght.Locn,
+                                NewShptNmbr = wght.NewShptNmbr,
+                                NewClientName = wght.NewClientName
 
                             };
                             _context.Transfer_Fixtures.Add(fixture);
@@ -197,7 +201,8 @@ namespace CargoApi.Controllers
                                    shipmentData.Name, shipmentData.ShptNmbr, shipmentData.Locn, shipmentData.Note,
                                    shipmentData.Rpnt, shipmentData.CstmRpnt, shipmentData.Qnty
                                    );
-                        var result = HelperMethods.SendEmail(items,"TRANSFER");
+                        //var result = HelperMethods.SendEmail(items,"TRANSFER");
+                        var result = true;
                         if (result)
                         {
                             // Commit the transaction
@@ -298,7 +303,7 @@ namespace CargoApi.Controllers
                     for (int i = 1; i <= +qnty; i++)
                     {
                         seq = seq + 1;
-                        rlist.Add($"{sequenceParts[0]}-{seq}");
+                        rlist.Add($"{sequenceParts[0]}-{seq}-{i}");
                     }
                 }
             }

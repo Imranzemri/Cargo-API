@@ -11,7 +11,7 @@ namespace CargoApi.Models
         {
             Transfer_Receipts = new HashSet<Transfer_Receipt>();
             Transfer_Drivers = new HashSet<Transfer_Driver>();
-            Transfer_Fixtures=new HashSet<Transfer_Fixture>();
+            //Transfer_Fixtures=new HashSet<Transfer_Fixture>();
         }
 
         public int Id { get; set; }
@@ -25,7 +25,7 @@ namespace CargoApi.Models
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
         public virtual ICollection<Transfer_Receipt>? Transfer_Receipts { get; set; }
-        public virtual ICollection<Transfer_Fixture>? Transfer_Fixtures { get; set; }
+       // public virtual ICollection<Transfer_Fixture>? Transfer_Fixtures { get; set; }
         public virtual ICollection<Transfer_Driver>? Transfer_Drivers { get; set; }
         [NotMapped]
         public List<WeightArrayItem_Transfer>? WeightCollection { get; set; }
@@ -40,10 +40,14 @@ namespace CargoApi.Models
     {
         public decimal Wght { get; set; }
         public string RcptNmbr { get; set; }
-        public string ShptNmbr { get; set; }
+       // public string ShptNmbr { get; set; }
         public string WUnit { get; set; }
         public string? Ptype { get; set; }
         public int? Qnty { get; set; }
+        public string? Locn { get; set; }
+        public string? GoodDesc { get; set; }
+        public string? NewShptNmbr { get; set; }
+        public string? NewClientName { get; set; }
     }
     [Owned]
 
@@ -53,10 +57,14 @@ namespace CargoApi.Models
         public decimal Width { get; set; }
         public decimal Height { get; set; }
         public string RcptNmbr { get; set; }
-        public string ShptNmbr { get; set; }
+        //public string ShptNmbr { get; set; }
         public string DUnit { get; set; }
         public string? Ptype { get; set; }
         public int? Qnty { get; set; }
+        public string? Locn { get; set; }
+        public string? GoodDesc { get; set; }
+        public string? NewShptNmbr { get; set; }
+        public string? NewClientName { get; set; }
     }
     [Owned]
     public class RcptNumbers_Transfer

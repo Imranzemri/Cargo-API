@@ -227,9 +227,12 @@ namespace CargoApi.Models
                     .HasMaxLength(255)
                     .HasColumnName("RCPT_NMBR");
 
-                entity.Property(e => e.ShptNmbr)
+                entity.Property(e => e.NewShptNmbr)
                     .HasMaxLength(255)
-                    .HasColumnName("SHPT_NMBR");
+                    .HasColumnName("OLD_SHPT_NMBR");
+                entity.Property(e => e.NewClientName)
+                    .HasMaxLength(255)
+                    .HasColumnName("NEW_CLNT_NAME");
 
                 entity.Property(e => e.Wght)
                     .HasColumnName("WGHT");
@@ -250,12 +253,18 @@ namespace CargoApi.Models
                     .HasMaxLength(50)
                     .HasColumnName("PRDT_TYPE");
                 entity.Property(e => e.Qnty).HasColumnName("QNTY");
+                entity.Property(e => e.Locn)
+                    .HasMaxLength(100)
+                    .HasColumnName("LOCN");
+                entity.Property(e => e.GoodDesc)
+                    .HasMaxLength(100)
+                    .HasColumnName("GOOD_DESC");
 
-                entity.HasOne(d => d.ShptNmbrNavigationTransferFix)
-                   .WithMany(p => p.Transfer_Fixtures)
-                   .HasPrincipalKey(p => p.ShptNmbr)
-                   .HasForeignKey(d => d.ShptNmbr)
-                   .HasConstraintName("FK__TRANSFER_FIXTURE__SHPT_NM__3A34245698");
+                //entity.HasOne(d => d.ShptNmbrNavigationTransferFix)
+                //   .WithMany(p => p.Transfer_Fixtures)
+                //   .HasPrincipalKey(p => p.ShptNmbr)
+                //   .HasForeignKey(d => d.NewShptNmbr)
+                //   .HasConstraintName("FK__TRANSFER_FIXTURE__SHPT_NM__3A34245698");
 
                 //entity.HasOne(d => d.RcptNmbrNavigationFix)
                 //   .WithMany(p => p.Fixtures)

@@ -1,6 +1,11 @@
-﻿using CargoApi.Models;
+﻿using CargoApi.Custom_Models;
+using CargoApi.Models;
 using Humanizer;
+using Microsoft.AspNetCore.Mvc;
+using System.Buffers.Text;
+using System.Net;
 using System.Net.Mail;
+using static CargoApi.Controllers.ShipmentController;
 
 namespace CargoApi.Helper_Methods
 {
@@ -225,6 +230,44 @@ namespace CargoApi.Helper_Methods
         }
 
 
+        #endregion
+
+        #region Send Email with Attachement
+        public static  bool SendEmailWithAttachement(EmailRequest request)
+        {
+            try
+            {
+                // Decode base64 data
+                byte[] pdfData = Convert.FromBase64String(request.PdfData);
+
+                // Create mail message
+                MailMessage mail = new MailMessage();
+                //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
+               mail.From = new MailAddress("pwswhse@priorityworldwide.com");
+                mail.To.Add(request.Recepient);
+                mail.Subject = "PDF Attachment";
+                mail.Body = "Please find the attached PDF.";
+                mail.IsBodyHtml = true;
+
+                // Attach PDF
+                mail.Attachments.Add(new Attachment(new System.IO.MemoryStream(pdfData), "QR_Codes.pdf"));
+
+                // Send email
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                {
+                   //smtp.Credentials = new NetworkCredential("pwswarehouseportal@gmail.com", "rauu ksch fzxs zqvr");
+                    smtp.Credentials = new NetworkCredential("pwswhse@priorityworldwide.com", "Winter2023@)@#");
+                    smtp.EnableSsl = true;
+                     smtp.Send(mail);
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
         #endregion
 
 
