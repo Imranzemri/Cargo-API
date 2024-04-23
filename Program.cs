@@ -46,12 +46,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+// Use CORS middlewar
+app.UseCors("AllowOrigin");
 
 app.UseAuthorization();
 
-// Use CORS middlewar
 
-app.UseCors("AllowOrigin");
 
 
 
