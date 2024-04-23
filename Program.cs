@@ -17,8 +17,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", builder =>
     {
-        builder
-            .AllowAnyOrigin()
+        builder.WithOrigins("https://pwswarehouse.azurewebsites.net")
+           .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
