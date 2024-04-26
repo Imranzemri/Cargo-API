@@ -245,7 +245,7 @@ namespace CargoApi.Helper_Methods
                 //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
                mail.From = new MailAddress("pwswhse@priorityworldwide.com");
                 mail.To.Add(request.Recepient);
-                mail.Subject = "PDF Attachment";
+                mail.Subject = $"{request.Type}-{request.ShipmentNmbr}";
                 mail.Body = "Please find the attached PDF.";
                 mail.IsBodyHtml = true;
 
@@ -253,7 +253,7 @@ namespace CargoApi.Helper_Methods
                 mail.Attachments.Add(new Attachment(new System.IO.MemoryStream(pdfData), "QR_Codes.pdf"));
 
                 // Send email
-                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
+                using (SmtpClient smtp = new SmtpClient("smtp.outlook.com", 587))
                 {
                    //smtp.Credentials = new NetworkCredential("pwswarehouseportal@gmail.com", "rauu ksch fzxs zqvr");
                     smtp.Credentials = new NetworkCredential("pwswhse@priorityworldwide.com", "Winter2023@)@#");
@@ -268,6 +268,47 @@ namespace CargoApi.Helper_Methods
                 return false;
             }
         }
+
+        public static bool SendEmailWithTwoAttachement(EmailRequest request)
+        {
+            try
+            {
+                // Decode base64 data
+                byte[] pdfData = Convert.FromBase64String(request.PdfData);
+                byte[] excelData = Convert.FromBase64String(request.ExcelData);
+
+
+                // Create mail message
+                MailMessage mail = new MailMessage();
+                //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
+                mail.From = new MailAddress("pwswhse@priorityworldwide.com");
+                mail.To.Add(request.Recepient);
+                mail.Subject = $"{request.Type}-{request.ShipmentNmbr}- CW File & Same File for Warehouse";
+                mail.Body = "Please find the attached PDF.";
+                mail.IsBodyHtml = true;
+
+                // Attach PDF
+                mail.Attachments.Add(new Attachment(new System.IO.MemoryStream(pdfData), "WareHouse_Data.pdf"));
+                mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+
+                // Send email
+                using (SmtpClient smtp = new SmtpClient("smtp.outlook.com", 587))
+                {
+                    //smtp.Credentials = new NetworkCredential("pwswarehouseportal@gmail.com", "rauu ksch fzxs zqvr");
+                    smtp.Credentials = new NetworkCredential("pwswhse@priorityworldwide.com", "Winter2023@)@#");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
         #endregion
 
 

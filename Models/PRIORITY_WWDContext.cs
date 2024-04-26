@@ -156,6 +156,9 @@ namespace CargoApi.Models
                 entity.Property(e => e.UpdtBy)
                    .HasMaxLength(50)
                    .HasColumnName("UPDT_BY");
+                entity.Property(e => e.PRJTNME)
+                .HasMaxLength(250)
+                .HasColumnName("PRJT_NME");
 
                 entity.Property(e => e.ShptNmbr)
                     .HasMaxLength(255)

@@ -32,6 +32,7 @@ namespace CargoApi.Models
         public DateTime? UpdtDate { get; set; }
         public string? InsrBy { get; set; }
         public string? UpdtBy { get; set; }
+        public string? PRJTNME { get; set; }
 
         public virtual ICollection<Receipt>? Receipts { get; set; }
         public virtual ICollection<Fixture>? Fixtures { get; set; }

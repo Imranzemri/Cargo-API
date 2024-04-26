@@ -164,11 +164,12 @@ namespace CargoApi.Controllers
             }
             var shpmntHelper = new Shipment
             {
-                Name = data.FirstOrDefault().Name,
+                Name = data?.FirstOrDefault()?.Name,
                 ShptNmbr = shpNumber,
-                InsrDate = data.FirstOrDefault().InsrDate,
-                Sts = data.FirstOrDefault().Sts,
-                Qnty = data.FirstOrDefault().Qnty,
+                InsrDate = data?.FirstOrDefault()?.InsrDate,
+                Sts = data?.FirstOrDefault()?.Sts,
+                Qnty = data?.FirstOrDefault()?.Qnty,
+                PRJTNME = data?.FirstOrDefault()?.PRJTNME,
                 DimensionCollection = DimensionList,
                 WeightCollection = WeightList
             };
@@ -298,7 +299,8 @@ namespace CargoApi.Controllers
                             InsrDate = DateTime.Now,
                             InsrBy = shipmentData.InsrBy,
                             UpdtDate = DateTime.Now,
-                            UpdtBy = shipmentData.UpdtBy
+                            UpdtBy = shipmentData.UpdtBy,
+                            PRJTNME = shipmentData.PRJTNME
                         };
                         _context.Shipments.Add(shipment);
 
@@ -479,8 +481,19 @@ namespace CargoApi.Controllers
         {
             try
             {
-                var result =   HelperMethods.SendEmailWithAttachement(request);
-
+                var result = false;
+                if (string.IsNullOrEmpty(request.ExcelData))
+                {
+                    result = HelperMethods.SendEmailWithAttachement(request);
+                }
+                else
+                {
+                   var recepient =  _context.Shipments.Where(x => x.ShptNmbr == request.ShipmentNmbr).
+                                                      ToList()?.
+                                                      FirstOrDefault()?.Rpnt;
+                    request.Recepient = recepient;
+                    result = HelperMethods.SendEmailWithTwoAttachement(request);
+                }
                 if (result)
                 {
                     return Ok(new { message = "Email sent successfully." });
