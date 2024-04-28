@@ -13,16 +13,26 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 // Add CORS configuration
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowOrigin", builder =>
+//    {
+//        builder
+//           .AllowAnyOrigin()
+//            .AllowAnyHeader()
+//            .AllowAnyMethod();
+//    });
+//});
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin", builder =>
     {
-        builder
-           .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        builder.WithOrigins("https://pwswarehouse.azurewebsites.net")
+               .AllowAnyHeader()
+               .AllowAnyMethod();
     });
 });
+
 // Set up the database context with the connection string
 var connectionString = configuration.GetConnectionString("MyDatabaseConnection");
 builder.Services.AddDbContext<PRIORITY_WWDContext>(options =>
