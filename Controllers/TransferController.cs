@@ -302,7 +302,7 @@ namespace CargoApi.Controllers
                     int seq = Convert.ToInt32(sequenceParts[1]);
                     for (int i = 1; i <= +qnty; i++)
                     {
-                        seq = seq + 1;
+                        //seq = seq + 1;
                         rlist.Add($"{sequenceParts[0]}-{seq}-{i}");
                     }
                 }
