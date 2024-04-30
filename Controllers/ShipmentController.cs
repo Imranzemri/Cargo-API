@@ -358,7 +358,7 @@ namespace CargoApi.Controllers
                                    shipmentData.Rpnt, shipmentData.CstmRpnt, shipmentData.Qnty
                                    );
 
-                        var result = HelperMethods.SendEmail(items, "RECEIVING");
+                        var result = true; //HelperMethods.SendEmail(items, "RECEIVING");
                         if (result)
                         {
                             // Commit the transaction
