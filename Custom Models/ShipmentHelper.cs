@@ -11,5 +11,6 @@
         public decimal? TotalKg { get; set; }
         public decimal? TotalLb { get; set; }
         public string? Sts { get; set; }
+        public bool? IsDisable { get; set; }
     }
 }

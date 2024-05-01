@@ -101,7 +101,8 @@ namespace CargoApi.Controllers
                     Name = item.Name,
                     ShpNmbr = item.ShptNmbr,
                     InsrDate = item.InsrDate,
-                    Sts = item.Sts
+                    Sts = item.Sts,
+                    IsDisable = false,
                     //TotalKg = totalkgs,
                     //TotalLb=totallbs,
                     //RcptNmr = mainRcpNo[0]

@@ -232,7 +232,7 @@ namespace CargoApi.Models
 
                 entity.Property(e => e.NewShptNmbr)
                     .HasMaxLength(255)
-                    .HasColumnName("OLD_SHPT_NMBR");
+                    .HasColumnName("NEW_SHPT_NMBR");
                 entity.Property(e => e.NewClientName)
                     .HasMaxLength(255)
                     .HasColumnName("NEW_CLNT_NAME");
@@ -330,8 +330,8 @@ namespace CargoApi.Models
             {
                 entity.ToTable("TRANSFER");
 
-                entity.HasIndex(e => e.ShptNmbr, "UQ__TRANSFER__5E9EFC15B8EA01E9")
-                    .IsUnique();
+                //entity.HasIndex(e => e.ShptNmbr, "UQ__TRANSFER__5E9EFC15B8EA01E9")
+                //    .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("ID");
 
@@ -359,7 +359,7 @@ namespace CargoApi.Models
 
                 entity.Property(e => e.ShptNmbr)
                     .HasMaxLength(255)
-                    .HasColumnName("SHPT_NMBR");
+                    .HasColumnName("OLD_SHPT_NMBR");
             });
 
             //ORDERS

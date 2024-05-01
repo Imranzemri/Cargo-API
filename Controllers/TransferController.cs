@@ -127,11 +127,11 @@ namespace CargoApi.Controllers
                 {
                     try
                     {
-                        if (_context.Transfers.Any(x => x.ShptNmbr == shipmentData.ShptNmbr))
-                        {
-                            transaction.Rollback();
-                            return BadRequest("Duplicate Shipment Number");
-                        }
+                        //if (_context.Transfers.Any(x => x.ShptNmbr == shipmentData.ShptNmbr))
+                        //{
+                        //    transaction.Rollback();
+                        //    return BadRequest("Duplicate Shipment Number");
+                        //}
                         // Create a new Shipment
                         var shipment = new Transfer
                         {
