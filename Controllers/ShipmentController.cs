@@ -195,9 +195,9 @@ namespace CargoApi.Controllers
 
             var data = _context.Shipments
                                 .Where(x => x.Sts == "Finalized")
+                                .OrderByDescending(x => x.Id)
                                 .Skip(skip)
                                 .Take(pageSize)
-                                .OrderByDescending(x => x.Id)
                                 .ToList();
             int totalCount = _context
                                     .Shipments
