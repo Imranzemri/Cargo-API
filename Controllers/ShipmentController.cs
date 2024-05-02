@@ -38,10 +38,10 @@ namespace CargoApi.Controllers
             int skip = (page - 1) * pageSize;
 
             var data = _context.Shipments
-                                .Skip(skip)
-                                .Take(pageSize)
-                                .OrderByDescending(x => x.Id)
-                                .ToList();
+                     .OrderByDescending(x => x.Id)
+                     .Skip(skip)
+                     .Take(pageSize)
+                     .ToList();
             int totalCount = _context
                                     .Shipments
                                     .Count();
