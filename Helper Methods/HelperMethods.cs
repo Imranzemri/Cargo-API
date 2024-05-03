@@ -244,7 +244,7 @@ namespace CargoApi.Helper_Methods
                 MailMessage mail = new MailMessage();
                 //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
                mail.From = new MailAddress("pwswhse@priorityworldwide.com");
-                mail.To.Add(request.Recepient);
+                mail.To.Add(request.Recepient.FirstOrDefault());
                 mail.Subject = $"{request.Type}-{request.ShipmentNmbr}";
                 mail.Body = "Please find the attached PDF.";
                 mail.IsBodyHtml = true;
@@ -282,7 +282,18 @@ namespace CargoApi.Helper_Methods
                 MailMessage mail = new MailMessage();
                 //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
                 mail.From = new MailAddress("pwswhse@priorityworldwide.com");
-                mail.To.Add(request.Recepient);
+                //mail.To.Add(request.Recepient);
+
+                var toAddress = new List<MailAddress>
+                {
+                    new MailAddress(request.Recepient[0], "Receiver"),
+                    new MailAddress(request.Recepient[1],"Receiver")
+                };
+                foreach (var to in request.Recepient)
+                {
+                    mail.To.Add(to);
+                }
+
                 mail.Subject = $"{request.Type}-{request.ShipmentNmbr}- CW File & Same File for Warehouse";
                 mail.Body = "Please find the attached PDF.";
                 mail.IsBodyHtml = true;

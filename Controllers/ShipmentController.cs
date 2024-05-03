@@ -171,6 +171,9 @@ namespace CargoApi.Controllers
                 Sts = data?.FirstOrDefault()?.Sts,
                 Qnty = data?.FirstOrDefault()?.Qnty,
                 PRJTNME = data?.FirstOrDefault()?.PRJTNME,
+                TrukNmbr = data?.FirstOrDefault()?.TrukNmbr,
+                PO = data?.FirstOrDefault()?.PO,
+                Supp = data?.FirstOrDefault()?.Supp,
                 DimensionCollection = DimensionList,
                 WeightCollection = WeightList
             };
@@ -489,10 +492,11 @@ namespace CargoApi.Controllers
                 }
                 else
                 {
-                   var recepient =  _context.Shipments.Where(x => x.ShptNmbr == request.ShipmentNmbr).
-                                                      ToList()?.
-                                                      FirstOrDefault()?.Rpnt;
-                    request.Recepient = recepient;
+                    var recvgData = _context.Shipments.Where(x => x.ShptNmbr == request.ShipmentNmbr).
+                                                       ToList();
+
+                    request.Recepient.Add(recvgData?.FirstOrDefault()?.Rpnt);
+                    request.Recepient.Add(recvgData?.FirstOrDefault()?.CstmRpnt);
                     result = HelperMethods.SendEmailWithTwoAttachement(request);
                 }
                 if (result)
