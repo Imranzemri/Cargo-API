@@ -99,6 +99,10 @@ namespace CargoApi.Controllers
                 var shpmntHelper = new ShipmentHelper
                 {
                     Name = item.Name,
+                    CleintRef = item.PO,
+                    TrakNo = item.TrukNmbr,
+                    Supplier = item.Supp,
+                    Project = item.PRJTNME,
                     ShpNmbr = item.ShptNmbr,
                     InsrDate = item.InsrDate,
                     Sts = item.Sts,
@@ -166,6 +170,7 @@ namespace CargoApi.Controllers
             var shpmntHelper = new Shipment
             {
                 Name = data?.FirstOrDefault()?.Name,
+                ClientRef = data?.FirstOrDefault()?.ClientRef,
                 ShptNmbr = shpNumber,
                 InsrDate = data?.FirstOrDefault()?.InsrDate,
                 Sts = data?.FirstOrDefault()?.Sts,
@@ -174,6 +179,7 @@ namespace CargoApi.Controllers
                 TrukNmbr = data?.FirstOrDefault()?.TrukNmbr,
                 PO = data?.FirstOrDefault()?.PO,
                 Supp = data?.FirstOrDefault()?.Supp,
+                PkgType = data?.FirstOrDefault().PkgType,
                 DimensionCollection = DimensionList,
                 WeightCollection = WeightList
             };
@@ -212,6 +218,10 @@ namespace CargoApi.Controllers
                 var shpmntHelper = new ShipmentHelper
                 {
                     Name = item.Name,
+                    CleintRef = item.PO,
+                    TrakNo = item.TrukNmbr,
+                    Supplier = item.Supp,
+                    Project = item.PRJTNME,
                     ShpNmbr = item.ShptNmbr,
                     InsrDate = item.InsrDate,
                     Sts = item.Sts
@@ -254,6 +264,10 @@ namespace CargoApi.Controllers
                     if (!string.IsNullOrEmpty(update.Description))
                     {
                         matchingFixtures.ForEach(p => p.GoodDesc = update.Description);
+                    }
+                    if (!string.IsNullOrEmpty(update.Type))
+                    {
+                        shipment.ForEach(p => p.PkgType = update.Type);
                     }
                 }
 
@@ -494,10 +508,13 @@ namespace CargoApi.Controllers
                 {
                     var recvgData = _context.Shipments.Where(x => x.ShptNmbr == request.ShipmentNmbr).
                                                        ToList();
+                    var reciptNmbrLst = _context.Receipts.Where(x=>x.ShptNmbr == request.ShipmentNmbr).
+                                                                                                     Select(x=>x.RcptNmbr).
+                                                                                                     ToList();
 
                     request.Recepient.Add(recvgData?.FirstOrDefault()?.Rpnt);
                     request.Recepient.Add(recvgData?.FirstOrDefault()?.CstmRpnt);
-                    result = HelperMethods.SendEmailWithTwoAttachement(request);
+                    result = HelperMethods.SendEmailWithThreeAttachement(request,reciptNmbrLst);
                 }
                 if (result)
                 {

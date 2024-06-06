@@ -1,10 +1,14 @@
 ﻿using CargoApi.Custom_Models;
 using CargoApi.Models;
 using Humanizer;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Mvc;
 using System.Buffers.Text;
+using System.Drawing.Printing;
 using System.Net;
 using System.Net.Mail;
+using System.Xml.Linq;
 using static CargoApi.Controllers.ShipmentController;
 
 namespace CargoApi.Helper_Methods
@@ -269,7 +273,74 @@ namespace CargoApi.Helper_Methods
             }
         }
 
-        public static bool SendEmailWithTwoAttachement(EmailRequest request)
+        //public static bool SendEmailWithTwoAttachement(EmailRequest request)
+        //{
+        //    try
+        //    {
+        //        // Decode base64 data
+        //        byte[] pdfData = Convert.FromBase64String(request.PdfData);
+        //        byte[] excelData = Convert.FromBase64String(request.ExcelData);
+
+
+        //        // Create mail message
+        //        MailMessage mail = new MailMessage();
+        //        //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
+        //        mail.From = new MailAddress("pwswhse@priorityworldwide.com");
+        //        //mail.To.Add(request.Recepient);
+        //        if (request.Recepient[1] != null)
+        //        {
+        //            var toAddress = new List<MailAddress>
+        //        {
+        //            new MailAddress(request.Recepient[0], "Receiver"),
+        //            new MailAddress(request.Recepient[1],"Receiver")
+        //        };
+        //            foreach (var to in request.Recepient)
+        //            {
+        //                mail.To.Add(to);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var toAddress = new List<MailAddress>
+        //        {
+        //            new MailAddress(request.Recepient[0], "Receiver")                
+        //            };
+
+        //            mail.To.Add(request.Recepient[0]);  
+        //        }
+
+        //        //foreach (var to in request.Recepient)
+        //        //{
+        //        //    mail.To.Add(to);
+        //        //}
+
+        //        mail.Subject = $"{request.Type}-{request.ShipmentNmbr}- CW File & Same File for Warehouse";
+        //        mail.Body = "Please find the attached PDF.";
+        //        mail.IsBodyHtml = true;
+
+        //        // Attach PDF
+        //        mail.Attachments.Add(new Attachment(new System.IO.MemoryStream(pdfData), "WareHouse_Data.pdf"));
+        //        mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+
+        //        // Send email
+        //        using (SmtpClient smtp = new SmtpClient("smtp.outlook.com", 587))
+        //        {
+        //            //smtp.Credentials = new NetworkCredential("pwswarehouseportal@gmail.com", "rauu ksch fzxs zqvr");
+        //            smtp.Credentials = new NetworkCredential("pwswhse@priorityworldwide.com", "Winter2023@)@#");
+        //            smtp.EnableSsl = true;
+        //            smtp.Send(mail);
+        //        }
+
+        //        return true;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        public static bool SendEmailWithThreeAttachement(EmailRequest request, List<string> receiptNumbers)
         {
             try
             {
@@ -277,36 +348,51 @@ namespace CargoApi.Helper_Methods
                 byte[] pdfData = Convert.FromBase64String(request.PdfData);
                 byte[] excelData = Convert.FromBase64String(request.ExcelData);
 
+                // Create a new PDF document for images
+                byte[] imagePdfData = CreatePdfFromImages(request.ShipmentNmbr, receiptNumbers);
 
                 // Create mail message
-                MailMessage mail = new MailMessage();
-                //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
-                mail.From = new MailAddress("pwswhse@priorityworldwide.com");
-                //mail.To.Add(request.Recepient);
-
-                var toAddress = new List<MailAddress>
+                MailMessage mail = new MailMessage
                 {
-                    new MailAddress(request.Recepient[0], "Receiver"),
-                    new MailAddress(request.Recepient[1],"Receiver")
+                    From = new MailAddress("pwswhse@priorityworldwide.com"),
+                    Subject = $"{request.Type}-{request.ShipmentNmbr}- CW File & Same File for Warehouse",
+                    Body = "Please find the attached PDF.",
+                    IsBodyHtml = true
                 };
-                foreach (var to in request.Recepient)
+
+                if (request.Recepient[1] != null)
                 {
-                    mail.To.Add(to);
+                    var toAddress = new List<MailAddress>
+                            {
+                                new MailAddress(request.Recepient[0], "Receiver"),
+                                new MailAddress(request.Recepient[1],"Receiver")
+                            };
+                    foreach (var to in request.Recepient)
+                    {
+                        mail.To.Add(to);
+                    }
+                }
+                else
+                {
+                    var toAddress = new List<MailAddress>
+                            {
+                                new MailAddress(request.Recepient[0], "Receiver")
+                                };
+
+                    mail.To.Add(request.Recepient[0]);
                 }
 
-                mail.Subject = $"{request.Type}-{request.ShipmentNmbr}- CW File & Same File for Warehouse";
-                mail.Body = "Please find the attached PDF.";
-                mail.IsBodyHtml = true;
-
-                // Attach PDF
-                mail.Attachments.Add(new Attachment(new System.IO.MemoryStream(pdfData), "WareHouse_Data.pdf"));
+                // Attach PDF, Excel, and Image PDF
+                mail.Attachments.Add(new Attachment(new MemoryStream(pdfData), "WareHouse_Data.pdf"));
                 mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-
+                if(imagePdfData.Length > 0)
+                {
+                    mail.Attachments.Add(new Attachment(new MemoryStream(imagePdfData), "Images.pdf"));
+                }
 
                 // Send email
                 using (SmtpClient smtp = new SmtpClient("smtp.outlook.com", 587))
                 {
-                    //smtp.Credentials = new NetworkCredential("pwswarehouseportal@gmail.com", "rauu ksch fzxs zqvr");
                     smtp.Credentials = new NetworkCredential("pwswhse@priorityworldwide.com", "Winter2023@)@#");
                     smtp.EnableSsl = true;
                     smtp.Send(mail);
@@ -316,7 +402,49 @@ namespace CargoApi.Helper_Methods
             }
             catch (Exception e)
             {
+                // Log exception (e) here if needed
                 return false;
+            }
+        }
+        private static byte[] CreatePdfFromImages(string shipmentNumber, List<string> receiptNumbers)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                Document document = new Document(PageSize.A4);
+                PdfWriter writer = PdfWriter.GetInstance(document, ms);
+                document.Open();
+                string[] allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".tif" };
+                // Get image files from the wwwroot folder
+                string imageFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                var imageFiles = Directory.GetFiles(imageFolder)
+                                  .Where(file => allowedExtensions.Contains(Path.GetExtension(file).ToLower()))
+                                  .ToList();
+
+                // Filter image files based on shipment number and receipt numbers
+                var filteredImages = imageFiles.Where(file =>
+                    receiptNumbers.Any(receipt =>
+                        Path.GetFileNameWithoutExtension(file).StartsWith($"{shipmentNumber}-{receipt}-")
+                    )).ToList();
+                if(filteredImages.Count > 0)
+                {
+                    foreach (var imageFile in filteredImages)
+                    {
+                        Image img = Image.GetInstance(imageFile);
+                        img.ScaleToFit(document.PageSize.Width - 20, document.PageSize.Height - 20);
+                        img.Alignment = Element.ALIGN_CENTER;
+                        document.Add(img);
+                        document.NewPage();
+                    }
+
+                    document.Close();
+                    writer.Close();
+                }
+                else
+                {
+                    return ms.ToArray();
+                }
+
+                return ms.ToArray();
             }
         }
 

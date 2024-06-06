@@ -33,6 +33,8 @@ namespace CargoApi.Models
         public string? InsrBy { get; set; }
         public string? UpdtBy { get; set; }
         public string? PRJTNME { get; set; }
+        public string? PkgType { get; set; }
+        public string? ClientRef { get; set; }
 
         public virtual ICollection<Receipt>? Receipts { get; set; }
         public virtual ICollection<Fixture>? Fixtures { get; set; }
@@ -55,6 +57,8 @@ namespace CargoApi.Models
         public int? Qnty { get; set; }
         public string? Locn { get; set; }
         public string? GoodDesc { get; set; }
+        public string? Note { get; set; }
+
     }
     [Owned]
 
@@ -70,6 +74,8 @@ namespace CargoApi.Models
         public int? Qnty { get; set; }
         public string? Locn { get; set; }
         public string? GoodDesc { get; set; }
+        public string? Note { get; set; }
+
     }
     [Owned]
     public class RcptNumbers

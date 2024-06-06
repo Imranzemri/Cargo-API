@@ -15,6 +15,7 @@
         public int? Qnty { get; set; }
         public string? Locn { get; set; }
         public string? GoodDesc { get; set; }
+        public string? Note { get; set; }
         public virtual Shipment? ShptNmbrNavigationFix { get; set; }
        // public virtual Receipt? RcptNmbrNavigationFix { get; set; }
 

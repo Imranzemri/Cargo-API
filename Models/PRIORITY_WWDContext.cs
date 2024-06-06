@@ -159,6 +159,12 @@ namespace CargoApi.Models
                 entity.Property(e => e.PRJTNME)
                 .HasMaxLength(250)
                 .HasColumnName("PRJT_NME");
+                entity.Property(e => e.PkgType)
+                .HasMaxLength(100)
+                .HasColumnName("PKG_TYP");
+                entity.Property(e => e.ClientRef)
+               .HasMaxLength(100)
+               .HasColumnName("CLNT_REF");
 
                 entity.Property(e => e.ShptNmbr)
                     .HasMaxLength(255)
@@ -205,6 +211,9 @@ namespace CargoApi.Models
                 entity.Property(e => e.GoodDesc)
                     .HasMaxLength(100)
                     .HasColumnName("GOOD_DESC");
+                entity.Property(e => e.Note)
+                   .HasMaxLength(250)
+                   .HasColumnName("NOTE");
 
                 entity.HasOne(d => d.ShptNmbrNavigationFix)
                    .WithMany(p => p.Fixtures)

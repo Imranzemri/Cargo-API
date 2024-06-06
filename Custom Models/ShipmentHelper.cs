@@ -4,6 +4,14 @@
     {
         public ShipmentHelper() { }
         public string? Name { get; set; }
+        public string? CleintRef { get; set; }
+
+        public string? TrakNo { get; set; }
+
+        public string? Supplier { get; set; }
+
+        public string? Project { get; set; }
+
         public string? ShpNmbr { get; set; }
         public int? Qnty { get; set; }
         public DateTime? InsrDate { get; set; }
