@@ -318,7 +318,9 @@ namespace CargoApi.Controllers
                             InsrBy = shipmentData.InsrBy,
                             UpdtDate = DateTime.Now,
                             UpdtBy = shipmentData.UpdtBy,
-                            PRJTNME = shipmentData.PRJTNME
+                            PRJTNME = shipmentData.PRJTNME,
+                            ClientRef = shipmentData.ClientRef,
+                            PkgType = shipmentData.PkgType,
                         };
                         _context.Shipments.Add(shipment);
 
@@ -357,6 +359,7 @@ namespace CargoApi.Controllers
                                 Qnty = wght.Qnty,
                                 Locn = wght.Locn,
                                 GoodDesc = wght.GoodDesc,
+                                Note = wght.Note,
 
                             };
                             _context.Fixtures.Add(fixture);
