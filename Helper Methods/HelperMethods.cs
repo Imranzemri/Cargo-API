@@ -8,6 +8,7 @@ using System.Buffers.Text;
 using System.Drawing.Printing;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using System.Xml.Linq;
 using static CargoApi.Controllers.ShipmentController;
 
@@ -340,7 +341,7 @@ namespace CargoApi.Helper_Methods
         //    }
         //}
 
-        public static bool SendEmailWithThreeAttachement(EmailRequest request, List<string> receiptNumbers)
+        public static bool SendEmailWithThreeAttachement(EmailRequest request)
         {
             try
             {
@@ -349,7 +350,7 @@ namespace CargoApi.Helper_Methods
                 byte[] excelData = Convert.FromBase64String(request.ExcelData);
 
                 // Create a new PDF document for images
-                byte[] imagePdfData = CreatePdfFromImages(request.ShipmentNmbr, receiptNumbers);
+                byte[] imagePdfData = CreatePdfFromImages(request.ShipmentNmbr);
 
                 // Create mail message
                 MailMessage mail = new MailMessage
@@ -360,7 +361,7 @@ namespace CargoApi.Helper_Methods
                     IsBodyHtml = true
                 };
 
-                if (request.Recepient[1] != null)
+                if (request.Recepient[1] != null && !string.IsNullOrEmpty(request.Recepient[1]))
                 {
                     var toAddress = new List<MailAddress>
                             {
@@ -384,8 +385,10 @@ namespace CargoApi.Helper_Methods
 
                 // Attach PDF, Excel, and Image PDF
                 mail.Attachments.Add(new Attachment(new MemoryStream(pdfData), "WareHouse_Data.pdf"));
-                mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-                if(imagePdfData.Length > 0)
+                //mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+                mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.csv", "text/csv")); // Changed to CSV attachment
+
+                if (imagePdfData.Length > 0)
                 {
                     mail.Attachments.Add(new Attachment(new MemoryStream(imagePdfData), "Images.pdf"));
                 }
@@ -406,7 +409,7 @@ namespace CargoApi.Helper_Methods
                 return false;
             }
         }
-        private static byte[] CreatePdfFromImages(string shipmentNumber, List<string> receiptNumbers)
+        private static byte[] CreatePdfFromImages(string shipmentNumber)
         {
             using (MemoryStream ms = new MemoryStream())
             {
@@ -422,9 +425,8 @@ namespace CargoApi.Helper_Methods
 
                 // Filter image files based on shipment number and receipt numbers
                 var filteredImages = imageFiles.Where(file =>
-                    receiptNumbers.Any(receipt =>
-                        Path.GetFileNameWithoutExtension(file).StartsWith($"{shipmentNumber}-{receipt}-")
-                    )).ToList();
+                        Path.GetFileNameWithoutExtension(file).StartsWith($"{shipmentNumber}-")
+                    ).ToList();
                 if(filteredImages.Count > 0)
                 {
                     foreach (var imageFile in filteredImages)

@@ -155,6 +155,7 @@ namespace CargoApi.Controllers
                     Lngth = Convert.ToDecimal(eachFixture.Length),
                     DUnit = eachFixture.DUnit,
                     Locn = eachFixture.Locn,
+                    Note = eachFixture.Note,
                     GoodDesc = eachFixture.GoodDesc,
                     RcptNmbr = eachFixture.RcptNmbr
                 });
@@ -163,6 +164,7 @@ namespace CargoApi.Controllers
                     Wght = Convert.ToDecimal(eachFixture.Wght),
                     WUnit = eachFixture.WUnit,
                     Locn = eachFixture.Locn,
+                    Note = eachFixture.Note,
                     GoodDesc = eachFixture.GoodDesc,
                     RcptNmbr = eachFixture.RcptNmbr
                 });
@@ -319,7 +321,7 @@ namespace CargoApi.Controllers
                             UpdtDate = DateTime.Now,
                             UpdtBy = shipmentData.UpdtBy,
                             PRJTNME = shipmentData.PRJTNME,
-                            ClientRef = shipmentData.ClientRef,
+                            ClientRef = shipmentData.PO,
                             PkgType = shipmentData.PkgType,
                         };
                         _context.Shipments.Add(shipment);
@@ -511,13 +513,13 @@ namespace CargoApi.Controllers
                 {
                     var recvgData = _context.Shipments.Where(x => x.ShptNmbr == request.ShipmentNmbr).
                                                        ToList();
-                    var reciptNmbrLst = _context.Receipts.Where(x=>x.ShptNmbr == request.ShipmentNmbr).
-                                                                                                     Select(x=>x.RcptNmbr).
-                                                                                                     ToList();
+                    //var reciptNmbrLst = _context.Receipts.Where(x=>x.ShptNmbr == request.ShipmentNmbr).
+                    //                                                                                 Select(x=>x.RcptNmbr).
+                    //                                                                                 ToList();
 
                     request.Recepient.Add(recvgData?.FirstOrDefault()?.Rpnt);
                     request.Recepient.Add(recvgData?.FirstOrDefault()?.CstmRpnt);
-                    result = HelperMethods.SendEmailWithThreeAttachement(request,reciptNmbrLst);
+                    result = HelperMethods.SendEmailWithThreeAttachement(request);
                 }
                 if (result)
                 {

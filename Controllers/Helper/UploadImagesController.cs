@@ -32,7 +32,7 @@ namespace CargoApi.Controllers.Helper
                 if (thumbnail != null && thumbnail.Length > 0)
                 {
                     var fileName = Path.GetFileName(thumbnail.FileName);
-                    //  var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName; // generate a unique file name to avoid conflicts
+                     //var uniqueFileName = Guid.NewGuid().ToString() + "-" + fileName; // generate a unique file name to avoid conflicts
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
 
 
@@ -77,10 +77,10 @@ namespace CargoApi.Controllers.Helper
 
             try
             {
-                var reciptNmbrLst = await _context.Receipts
-                                                  .Where(x => x.ShptNmbr == dto.shipmentNumber)
-                                                  .Select(x => x.RcptNmbr)
-                                                  .ToListAsync();
+                //var reciptNmbrLst = await _context.Receipts
+                //                                  .Where(x => x.ShptNmbr == dto.shipmentNumber)
+                //                                  .Select(x => x.RcptNmbr)
+                //                                  .ToListAsync();
 
                 string[] allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".tif" };
                 string imageFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
@@ -88,10 +88,13 @@ namespace CargoApi.Controllers.Helper
                                           .Where(file => allowedExtensions.Contains(Path.GetExtension(file).ToLower()))
                                           .ToList();
 
+                //var filteredImages = imageFiles.Where(file =>
+                //    reciptNmbrLst.Any(receipt =>
+                //        Path.GetFileNameWithoutExtension(file).StartsWith($"{dto.shipmentNumber}-{receipt}-")
+                //    )).ToList();
                 var filteredImages = imageFiles.Where(file =>
-                    reciptNmbrLst.Any(receipt =>
-                        Path.GetFileNameWithoutExtension(file).StartsWith($"{dto.shipmentNumber}-{receipt}-")
-                    )).ToList();
+                       Path.GetFileNameWithoutExtension(file).StartsWith($"{dto.shipmentNumber}-")
+                   ).ToList();
 
                 var images = new List<string>();
                 foreach (var imagePath in filteredImages)
