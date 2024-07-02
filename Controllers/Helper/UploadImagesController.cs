@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Ocsp;
+using System.IO;
 
 namespace CargoApi.Controllers.Helper
 {
@@ -34,17 +35,26 @@ namespace CargoApi.Controllers.Helper
                     var fileName = Path.GetFileName(thumbnail.FileName);
                      //var uniqueFileName = Guid.NewGuid().ToString() + "-" + fileName; // generate a unique file name to avoid conflicts
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-
-
-
+                    var directory = Path.GetDirectoryName(filePath);
                     if (!Directory.Exists(Path.GetDirectoryName(filePath)))
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(filePath));
                     }
+                    var parts = fileName.Split(new char[] { '+', '-' }, StringSplitOptions.RemoveEmptyEntries);
 
+                    var shipmentNo = parts[0];
+                    var groupAndPieceIndex = parts[1];
 
+                    // Search for files in the directory that start with the same initial part
+                    var existingFiles = Directory.GetFiles(directory, shipmentNo+'+'+groupAndPieceIndex + "-*");
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Delete the existing file if found
+                    foreach (var existingFile in existingFiles)
+                    {
+                        System.IO.File.Delete(existingFile);
+                    }
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await thumbnail.CopyToAsync(stream);
                     }
@@ -93,7 +103,7 @@ namespace CargoApi.Controllers.Helper
                 //        Path.GetFileNameWithoutExtension(file).StartsWith($"{dto.shipmentNumber}-{receipt}-")
                 //    )).ToList();
                 var filteredImages = imageFiles.Where(file =>
-                       Path.GetFileNameWithoutExtension(file).StartsWith($"{dto.shipmentNumber}-")
+                       Path.GetFileNameWithoutExtension(file).StartsWith($"{dto.shipmentNumber}+")
                    ).ToList();
 
                 var images = new List<string>();

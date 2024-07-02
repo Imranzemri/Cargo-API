@@ -425,7 +425,7 @@ namespace CargoApi.Helper_Methods
 
                 // Filter image files based on shipment number and receipt numbers
                 var filteredImages = imageFiles.Where(file =>
-                        Path.GetFileNameWithoutExtension(file).StartsWith($"{shipmentNumber}-")
+                        Path.GetFileNameWithoutExtension(file).StartsWith($"{shipmentNumber}+")
                     ).ToList();
                 if(filteredImages.Count > 0)
                 {
@@ -468,7 +468,7 @@ namespace CargoApi.Helper_Methods
 
                 matchingImages = Directory.GetFiles(imagesDirectory)
                    .Select(Path.GetFileName)
-                   .Where(fileName => fileName.StartsWith(prefix + "_"))
+                   .Where(fileName => fileName.StartsWith(prefix+"+"))
                    .ToList();
 
                 return matchingImages;
