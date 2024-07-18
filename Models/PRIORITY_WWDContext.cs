@@ -135,6 +135,7 @@ namespace CargoApi.Models
                 entity.Property(e => e.Qnty).HasColumnName("QNTY");
 
                 entity.Property(e => e.Rpnt).HasColumnName("RPNT");
+                entity.Property(e => e.RpntName).HasColumnName("RPNT_NME");
 
                 entity.Property(e => e.Sts)
                    .HasMaxLength(50)

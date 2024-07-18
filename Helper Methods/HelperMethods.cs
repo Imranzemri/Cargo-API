@@ -250,7 +250,7 @@ namespace CargoApi.Helper_Methods
                 //mail.From = new MailAddress("pwswarehouseportal@gmail.com");
                mail.From = new MailAddress("pwswhse@priorityworldwide.com");
                 mail.To.Add(request.Recepient.FirstOrDefault());
-                mail.Subject = $"{request.Type}-{request.ShipmentNmbr}";
+                mail.Subject = $"{request.RpntName}-{request.ShipmentNmbr}";
                 mail.Body = "Please find the attached PDF.";
                 mail.IsBodyHtml = true;
 
@@ -356,8 +356,9 @@ namespace CargoApi.Helper_Methods
                 MailMessage mail = new MailMessage
                 {
                     From = new MailAddress("pwswhse@priorityworldwide.com"),
-                    Subject = $"{request.Type}-{request.ShipmentNmbr}- CW File & Same File for Warehouse",
-                    Body = "Please find the attached PDF.",
+                    Subject = $"{request.RpntName} // WAREHOUSE RECEIPT // {request.ClientName} // " +
+                    $"{request.ShipmentNmbr} // {request.RcptNo}",
+                    Body = "Please find the attachements.",
                     IsBodyHtml = true
                 };
 
@@ -384,13 +385,13 @@ namespace CargoApi.Helper_Methods
                 }
 
                 // Attach PDF, Excel, and Image PDF
-                mail.Attachments.Add(new Attachment(new MemoryStream(pdfData), "WareHouse_Data.pdf"));
+                mail.Attachments.Add(new Attachment(new MemoryStream(pdfData), $"warehouse_receipt_{request.RcptNo}.pdf"));
                 //mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-                mail.Attachments.Add(new Attachment(new MemoryStream(excelData), "Cw_Data.csv", "text/csv")); // Changed to CSV attachment
+                mail.Attachments.Add(new Attachment(new MemoryStream(excelData), $"CW_import_{request.RcptNo}.csv", "text/csv")); // Changed to CSV attachment
 
                 if (imagePdfData.Length > 0)
                 {
-                    mail.Attachments.Add(new Attachment(new MemoryStream(imagePdfData), "Images.pdf"));
+                    mail.Attachments.Add(new Attachment(new MemoryStream(imagePdfData), $"images_{request.RcptNo}.pdf"));
                 }
 
                 // Send email

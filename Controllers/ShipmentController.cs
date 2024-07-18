@@ -172,6 +172,7 @@ namespace CargoApi.Controllers
             var shpmntHelper = new Shipment
             {
                 Name = data?.FirstOrDefault()?.Name,
+                RpntName = data?.FirstOrDefault()?.RpntName,
                 ClientRef = data?.FirstOrDefault()?.ClientRef,
                 ShptNmbr = shpNumber,
                 InsrDate = data?.FirstOrDefault()?.InsrDate,
@@ -181,7 +182,7 @@ namespace CargoApi.Controllers
                 TrukNmbr = data?.FirstOrDefault()?.TrukNmbr,
                 PO = data?.FirstOrDefault()?.PO,
                 Supp = data?.FirstOrDefault()?.Supp,
-                PkgType = data?.FirstOrDefault().PkgType,
+                PkgType = data?.FirstOrDefault()?.PkgType,
                 DimensionCollection = DimensionList,
                 WeightCollection = WeightList
             };
@@ -310,6 +311,7 @@ namespace CargoApi.Controllers
                             Note = shipmentData.Note,
                             Imgs = shipmentData.Imgs,
                             Rpnt = shipmentData.Rpnt,
+                            RpntName = shipmentData.RpntName,
                             CstmRpnt = shipmentData.CstmRpnt,
                             Qnty = shipmentData.Qnty,
                             Sts = shipmentData.Sts,
@@ -424,11 +426,11 @@ namespace CargoApi.Controllers
 
                 if (isDuplicate)
                 {
-                    return Ok("Duplicate Shipment Number");
+                    return BadRequest(new { message = "Duplicate Shipment Number" });
                 }
                 else
                 {
-                    return Ok("Success");
+                    return Ok(new{message = "Success"});
                 }
             }
             catch (Exception ex)

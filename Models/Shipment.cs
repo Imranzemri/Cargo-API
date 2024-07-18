@@ -22,6 +22,7 @@ namespace CargoApi.Models
         public string? Note { get; set; }
         public string? Imgs { get; set; }
         public string? Rpnt { get; set; }
+        public string? RpntName { get; set; }
         public string? CstmRpnt { get; set; }
         public int? Qnty { get; set; }
         public string? Sts { get; set; }
